@@ -1,0 +1,33 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <StyleInclude Source="avares://Avalonia.ProtoParse.Desktop/Themes/Generic.axaml" />
+  
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Default">
+          <SolidColorBrush x:Key="TreeDataGridGridLinesBrush" Color="#E5E7EB" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPointerOverBrush" Color="#1C1F23" Opacity="0.1" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPressedBrush" Color="#F3F4F6" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPointerOverBrush" Color="Transparent" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPressedBrush" Color="Transparent" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPointerOverBrush" Color="#1C1F23" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPressedBrush" Color="#1C1F23" />
+          <SolidColorBrush x:Key="TreeDataGridSelectedCellBackgroundBrush" Color="#DCE0FE" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="TreeDataGridGridLinesBrush" Color="#333333" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPointerOverBrush" Color="#FFFFFF" Opacity="0.1" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPressedBrush" Color="#333333" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPointerOverBrush" Color="Transparent" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPressedBrush" Color="Transparent" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPointerOverBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPressedBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="TreeDataGridSelectedCellBackgroundBrush" Color="#3B82F6" Opacity="0.4" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+</Styles>

@@ -1,0 +1,105 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Avalonia.ProtoParse.Desktop.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ae="using:AvaloniaEdit"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Avalonia.ProtoParse.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Avalonia.ProtoParse.Desktop"
+                ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Window.Styles>
+    </Window.Styles>
+
+    <Grid Margin="0,40,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320" MinWidth="300" />
+            <ColumnDefinition Width="1" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="1" />
+            <ColumnDefinition Width="0" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Column: Input -->
+        <Grid Grid.Column="0" RowDefinitions="Auto, *, Auto">
+            <!-- Header -->
+            <Border Grid.Row="0" Background="#F2F4F8" Margin="0,0,0,0" Padding="5,10">
+                <Grid ColumnDefinitions="Auto, *">
+                    <TextBlock Text="原始数据" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,0,5,0">
+                        <Button Classes="Primary" Width="44" Height="44" Padding="0" CornerRadius="4" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                            <TextBlock Text="解&#x0a;析" TextAlignment="Center" FontSize="13" FontWeight="Bold"/>
+                        </Button>
+                        <Button Width="44" Height="44" Padding="0" CornerRadius="4" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                            <TextBlock Text="示&#x0a;例" TextAlignment="Center" FontSize="13"/>
+                        </Button>
+                        <Button Command="{Binding ClearCommand}" Width="44" Height="44" Padding="0" CornerRadius="4" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                            <TextBlock Text="清&#x0a;空" TextAlignment="Center" FontSize="13"/>
+                        </Button>
+                        <Button Classes="Tertiary" Width="44" Height="44" Padding="0" CornerRadius="4" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                            <TextBlock Text="导&#x0a;入" TextAlignment="Center" FontSize="13"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Editor -->
+            <Border Grid.Row="1" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0" Margin="0">
+                <ae:TextEditor Name="InputEditor"
+                               ShowLineNumbers="False"
+                               WordWrap="True"
+                               FontFamily="Cascadia Code,Consolas,Monospace"
+                               Margin="10" />
+            </Border>
+
+            <!-- Status Bar -->
+            <Border Grid.Row="2" Background="#F2F4F8" Padding="10,6">
+                <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="#6B7280"/>
+            </Border>
+        </Grid>
+
+        <!-- Splitter 1 -->
+        <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="#10000000" />
+
+        <!-- Middle Column: Tree View -->
+        <Grid Grid.Column="2" RowDefinitions="Auto, *">
+            <!-- Header -->
+            <Border Grid.Row="0" Background="#F2F4F8" Padding="10,10" Margin="0,0,0,0">
+                <Grid ColumnDefinitions="Auto, Auto, *, Auto">
+                    <TextBlock Text="结构树" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                    
+                    <!-- Action Buttons -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                        <Button Content="全部展开" Command="{Binding ExpandAllCommand}" CornerRadius="4" Padding="15,6" FontSize="12"/>
+                        <Button Content="全部收缩" Command="{Binding CollapseAllCommand}" CornerRadius="4" Padding="15,6" FontSize="12"/>
+                        <Button Content="导出节点" CornerRadius="4" Padding="15,6" FontSize="12"/>
+                    </StackPanel>
+
+                    <!-- Spacer -->
+                    
+                    <!-- Search Box -->
+                    <TextBox Grid.Column="3" Watermark="搜索字符串" Width="200" CornerRadius="4" FontSize="12" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <TreeDataGrid Grid.Row="1" Source="{Binding Source}" ShowColumnHeaders="False" Margin="0" />
+        </Grid>
+
+        <!-- Splitter 2 -->
+        <GridSplitter Grid.Column="3" ResizeDirection="Columns" Background="#10000000" />
+
+        <!-- Right Column: Empty -->
+        <Panel Grid.Column="4" Background="Transparent" />
+    </Grid>
+
+</Window>
