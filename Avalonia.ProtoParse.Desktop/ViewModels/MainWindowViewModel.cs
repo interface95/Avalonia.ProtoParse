@@ -116,62 +116,7 @@ public class MainWindowViewModel : ViewModelBase
             StatusText = $"解析成功, 共 {nodes.Count} 个一级字段";
             var displayNodes = ProtoDisplayNode.FromNodes(nodes);
 
-            var cellTemplate = new Avalonia.Controls.Templates.FuncDataTemplate(typeof(ProtoDisplayNode), (o, ns) => {
-                var node = (ProtoDisplayNode)o;
-                var grid = new Grid
-                {
-                    ColumnDefinitions = new ColumnDefinitions("Auto, Auto, *")
-                };
-
-                var fieldBorder = new Border
-                {
-                    MinWidth = 28,
-                    Height = 25,
-                    CornerRadius = new CornerRadius(12),
-                    Background = Avalonia.Media.SolidColorBrush.Parse("#E6E8FA"), // Lavender-ish
-                    Margin = new Thickness(0, 0, 10, 0),
-                    Child = new TextBlock 
-                    { 
-                        Text = node.FieldDisplay, 
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        Padding = new Thickness(4, 0)
-                    }
-                };
-                grid.Children.Add(fieldBorder);
-                Grid.SetColumn(fieldBorder, 0);
-
-                var typeBrush = node.WireType switch
-                {
-                    ProtoWireType.Varint => Avalonia.Media.Brushes.Chocolate,
-                    ProtoWireType.LengthDelimited => Avalonia.Media.Brushes.Black,
-                    ProtoWireType.Fixed32 => Avalonia.Media.Brushes.Teal,
-                    ProtoWireType.Fixed64 => Avalonia.Media.Brushes.Teal,
-                    _ => Avalonia.Media.Brushes.Gray
-                };
-
-                var typeText = new TextBlock 
-                { 
-                    Text = node.WireTypeDisplay, 
-                    VerticalAlignment = VerticalAlignment.Center, 
-                    Margin = new Thickness(0, 0, 10, 0),
-                    Foreground = typeBrush
-                };
-                grid.Children.Add(typeText);
-                Grid.SetColumn(typeText, 1);
-
-                var summaryText = new TextBlock 
-                { 
-                    Text = node.Summary, 
-                    VerticalAlignment = VerticalAlignment.Center, 
-                    Margin = new Thickness(0, 0, 5, 0),
-                    TextTrimming = Avalonia.Media.TextTrimming.CharacterEllipsis
-                };
-                grid.Children.Add(summaryText);
-                Grid.SetColumn(summaryText, 2);
-
-                return grid;
-            }, true);
+            var cellTemplate = (Avalonia.Controls.Templates.IDataTemplate)Application.Current!.FindResource("ProtoNodeTemplate")!;
 
             Source = new HierarchicalTreeDataGridSource<ProtoDisplayNode>(displayNodes)
             {
