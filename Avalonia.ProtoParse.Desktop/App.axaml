@@ -4,6 +4,7 @@
              xmlns:converters="using:Avalonia.ProtoParse.Desktop.Converters"
              xmlns:core="using:Protobuf.Decode.Parser"
              x:Class="Avalonia.ProtoParse.Desktop.App"
+             xmlns:u-semi="https://irihi.tech/ursa/themes/semi"
              RequestedThemeVariant="Light">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
   
@@ -22,7 +23,8 @@
     </Application.Resources>
 
     <Application.Styles>
-        <semi:SemiTheme />
+        <semi:SemiTheme Locale="zh-CN"/>
+        <u-semi:SemiTheme Locale="zh-CN"/>
         <semi:AvaloniaEditSemiTheme />
         <semi:TreeDataGridSemiTheme />
         <StyleInclude Source="avares://Avalonia.ProtoParse.Desktop/Themes/Fluent.axaml"/>
