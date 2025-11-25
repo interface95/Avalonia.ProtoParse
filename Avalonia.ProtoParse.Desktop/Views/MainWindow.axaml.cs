@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using Avalonia.ProtoParse.Desktop.ViewModels;
 using Ursa.Controls;
 
@@ -28,28 +30,36 @@ public partial class MainWindow : UrsaWindow
         {
             InputEditor.Text = vm.InputText;
             vm.PropertyChanged += ViewModel_PropertyChanged;
+            
+            // Inject file dialog logic
+            vm.ShowOpenFileDialog = async () => 
+            {
+                var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+                {
+                    Title = "导入 Protobuf 数据文件",
+                    AllowMultiple = false
+                });
+                return files.FirstOrDefault();
+            };
         }
     }
 
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(MainWindowViewModel.InputText) && DataContext is MainWindowViewModel vm)
+        if (e.PropertyName != nameof(MainWindowViewModel.InputText) ||
+            DataContext is not MainWindowViewModel vm) return;
+        if (InputEditor.Text != vm.InputText)
         {
-            if (InputEditor.Text != vm.InputText)
-            {
-                InputEditor.Text = vm.InputText;
-            }
+            InputEditor.Text = vm.InputText;
         }
     }
 
     private void InputEditor_TextChanged(object? sender, EventArgs e)
     {
-        if (DataContext is MainWindowViewModel vm)
+        if (DataContext is not MainWindowViewModel vm) return;
+        if (vm.InputText != InputEditor.Text)
         {
-            if (vm.InputText != InputEditor.Text)
-            {
-                vm.InputText = InputEditor.Text;
-            }
+            vm.InputText = InputEditor.Text;
         }
     }
     

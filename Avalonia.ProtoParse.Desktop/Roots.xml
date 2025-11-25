@@ -2,8 +2,8 @@
   <!-- Preserve everything in the application assembly -->
   <assembly fullname="Avalonia.ProtoParse.Desktop" preserve="all" />
   
-  <!-- Preserve ReactiveUI (essential for bindings) -->
-  <assembly fullname="ReactiveUI" preserve="all" />
+  <!-- Preserve CommunityToolkit.Mvvm -->
+  <assembly fullname="CommunityToolkit.Mvvm" preserve="all" />
   
   <!-- Ursa UI controls -->
   <assembly fullname="Ursa" preserve="all" />

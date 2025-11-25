@@ -91,7 +91,7 @@
                                 <TextBlock Text="清&#x0a;空" TextAlignment="Center" FontSize="13"
                                            Classes="Warning" />
                             </Button>
-                            <Button Classes="Tertiary" Padding="8,4" CornerRadius="4"
+                            <Button Command="{Binding ImportFileCommand}" Classes="Tertiary" Padding="8,4" CornerRadius="4"
                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                                 <TextBlock Text="导&#x0a;入" TextAlignment="Center" FontSize="13" />
                             </Button>
