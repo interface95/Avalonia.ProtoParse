@@ -32,6 +32,35 @@
       <localConv:ParentNodeBackgroundConverter x:Key="ParentNodeBackgroundConverter"/>
       <localConv:ParentNodeBorderBrushConverter x:Key="ParentNodeBorderBrushConverter"/>
       <localConv:ParentNodeBorderThicknessConverter x:Key="ParentNodeBorderThicknessConverter"/>
+      
+      <localConv:WireTypeToBrushConverter x:Key="WireTypeToBrushConverter" />
+
+      <DataTemplate x:Key="ProtoNodeTemplate" DataType="parser:ProtoDisplayNode">
+          <Border CornerRadius="4" Padding="4,2" Classes.highlighted="{Binding IsHighlighted}" Background="Transparent">
+              <Grid ColumnDefinitions="Auto, Auto, *" TextElement.Foreground="{Binding WireType, Converter={StaticResource WireTypeToBrushConverter}}">
+                   <Border Classes="field-badge" Grid.Column="0" 
+                           MinWidth="28" 
+                           Height="25" 
+                           CornerRadius="12" 
+                           Background="#E6E8FA" 
+                           Margin="0,0,10,0">
+                       <TextBlock Text="{Binding FieldDisplay}"
+                                  HorizontalAlignment="Center" 
+                                  VerticalAlignment="Center" 
+                                  Padding="4,0"
+                                  Foreground="Black"/>
+                   </Border>
+                   <TextBlock Grid.Column="1" 
+                              Text="{Binding WireTypeDisplay}" 
+                              VerticalAlignment="Center" 
+                              Margin="0,0,10,0"/>
+                   <TextBlock Grid.Column="2" 
+                              Text="{Binding Summary}" 
+                              VerticalAlignment="Center" 
+                              Margin="0,0,5,0" TextTrimming="CharacterEllipsis"/>
+              </Grid>
+          </Border>
+      </DataTemplate>
 
       <StreamGeometry x:Key="TreeDataGridSortIconDescendingPath">M1875 1011l-787 787v-1798h-128v1798l-787 -787l-90 90l941 941l941 -941z</StreamGeometry>
       <StreamGeometry x:Key="TreeDataGridSortIconAscendingPath">M1965 947l-941 -941l-941 941l90 90l787 -787v1798h128v-1798l787 787z</StreamGeometry>
@@ -266,7 +295,7 @@
                       BorderThickness="{Binding Converter={StaticResource ParentNodeBorderThicknessConverter}}"
                       CornerRadius="6"
                       MinHeight="47"
-                      Margin="20,2"/>
+                      Margin="10,2"/>
 
               <!-- 悬停/选中/高亮 叠加层 -->
               <Border x:Name="HoverBorder"
@@ -275,7 +304,7 @@
                       Classes.highlighted="{Binding IsHighlighted}"
                       CornerRadius="6"
                       MinHeight="47"
-                      Margin="20,2"
+                      Margin="10,2"
                       BorderThickness="1"
                       Opacity="0"
                       IsHitTestVisible="False">

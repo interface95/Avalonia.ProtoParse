@@ -69,7 +69,10 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <!-- 标题栏 -->
-                <Border Grid.Row="0" Margin="0,0,0,0" Padding="5,5" BorderBrush="#E1E3E5" BorderThickness="0,0,0,1">
+                <Border Grid.Row="0" Margin="0,0,0,0" 
+                        Padding="5,8" 
+                        BorderBrush="#E1E3E5" 
+                        BorderThickness="0,0,0,1">
                     <Grid ColumnDefinitions="Auto, *">
                         <TextBlock Text="原始数据" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" Margin="20,0" />
                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8"
@@ -148,7 +151,9 @@
                 </Border>
 
                 <!-- 树形数据表格 -->
-                <TreeDataGrid Grid.Row="1" Source="{Binding Source}" ShowColumnHeaders="False" Margin="0" />
+                <TreeDataGrid Grid.Row="1" Source="{Binding Source}" 
+                              ShowColumnHeaders="False" 
+                              Margin="0,10,0,0" />
             </Grid>
 
             <!-- 分割线 2 -->
