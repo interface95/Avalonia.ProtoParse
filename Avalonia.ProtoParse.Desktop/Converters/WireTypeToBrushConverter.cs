@@ -1,5 +1,7 @@
 using System;
 using System.Globalization;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Protobuf.Decode.Parser;
@@ -10,16 +12,21 @@ public class WireTypeToBrushConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is ProtoWireType wireType)
+        if (value is not ProtoWireType wireType || Application.Current == null)
+            return Brushes.Gray;
+        
+        var resourceKey = wireType switch
         {
-            return wireType switch
-            {
-                ProtoWireType.Varint => Brushes.Chocolate,
-                ProtoWireType.LengthDelimited => Brushes.Black,
-                ProtoWireType.Fixed32 => Brushes.Teal,
-                ProtoWireType.Fixed64 => Brushes.Teal,
-                _ => Brushes.Gray
-            };
+            ProtoWireType.Varint => "WireTypeVarintBrush",
+            ProtoWireType.LengthDelimited => "WireTypeLengthDelimitedBrush",
+            ProtoWireType.Fixed32 => "WireTypeFixedBrush",
+            ProtoWireType.Fixed64 => "WireTypeFixedBrush",
+            _ => "WireTypeDefaultBrush"
+        };
+
+        if (Application.Current.TryFindResource(resourceKey, out var resource) && resource is IBrush brush)
+        {
+            return brush;
         }
         return Brushes.Gray;
     }

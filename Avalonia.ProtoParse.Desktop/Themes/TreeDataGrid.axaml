@@ -6,40 +6,36 @@
 
     <Styles.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Default">
-                    <SolidColorBrush x:Key="TreeDataGridGridLinesBrush" Color="#E5E7EB" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPointerOverBrush" Color="#1C1F23" Opacity="0.1" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPressedBrush" Color="#F3F4F6" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPointerOverBrush" Color="Transparent" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPressedBrush" Color="Transparent" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPointerOverBrush" Color="#1C1F23" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPressedBrush" Color="#1C1F23" />
-                    <SolidColorBrush x:Key="TreeDataGridSelectedCellBackgroundBrush" Color="#DCE0FE" />
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="TreeDataGridGridLinesBrush" Color="#333333" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPointerOverBrush" Color="#FFFFFF" Opacity="0.1" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPressedBrush" Color="#333333" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPointerOverBrush" Color="Transparent" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPressedBrush" Color="Transparent" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPointerOverBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPressedBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="TreeDataGridSelectedCellBackgroundBrush" Color="#3B82F6" Opacity="0.4" />
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
-
             <localConv:ParentNodeBackgroundConverter x:Key="ParentNodeBackgroundConverter" />
             <localConv:ParentNodeBorderBrushConverter x:Key="ParentNodeBorderBrushConverter" />
             <localConv:ParentNodeBorderThicknessConverter x:Key="ParentNodeBorderThicknessConverter" />
+            <localConv:HasChildrenConverter x:Key="HasChildrenConverter" />
 
             <localConv:WireTypeToBrushConverter x:Key="WireTypeToBrushConverter" />
 
             <DataTemplate x:Key="ProtoNodeTemplate" DataType="parser:ProtoDisplayNode">
                 <Border CornerRadius="4" Padding="4,2" Classes.highlighted="{Binding IsHighlighted}"
                         Background="Transparent">
-                    <Grid ColumnDefinitions="Auto, Auto, *"
-                          TextElement.Foreground="{Binding WireType, Converter={StaticResource WireTypeToBrushConverter}}">
+                    <Grid ColumnDefinitions="Auto, Auto, *" Tag="{Binding WireType}">
+                        <Grid.Styles>
+                            <Style Selector="Grid[Tag=Varint] TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource WireTypeVarintBrush}" />
+                            </Style>
+                            <Style Selector="Grid[Tag=Fixed32] TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource WireTypeFixedBrush}" />
+                            </Style>
+                            <Style Selector="Grid[Tag=Fixed64] TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource WireTypeFixedBrush}" />
+                            </Style>
+                            <Style Selector="Grid[Tag=LengthDelimited] TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource WireTypeLengthDelimitedBrush}" />
+                            </Style>
+                            <!-- Default/Fallback -->
+                            <Style Selector="Grid TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource WireTypeDefaultBrush}" />
+                            </Style>
+                        </Grid.Styles>
+
                         <Border Classes="field-badge" Grid.Column="0"
                                 MinWidth="28"
                                 Height="25"
@@ -297,6 +293,7 @@
                                 <!-- 基础背景层 (根据是否有子节点显示不同背景) -->
                                 <Border x:Name="ContentBorder"
                                         x:DataType="parser:ProtoDisplayNode"
+                                        Classes.parent="{Binding Children.Count, Converter={StaticResource HasChildrenConverter}}"
                                         BorderThickness="{Binding Converter={StaticResource ParentNodeBorderThicknessConverter}}"
                                         CornerRadius="6"
                                         MinHeight="47"
@@ -340,12 +337,16 @@
                     </ControlTemplate>
                 </Setter>
 
-                <!-- 基础背景层样式：根据是否有子节点设置背景色和边框 -->
+                <!-- 基础背景层样式：默认透明 -->
                 <Style Selector="^ /template/ Border#ContentBorder" x:DataType="parser:ProtoDisplayNode">
-                    <Setter Property="Background"
-                            Value="{Binding Converter={StaticResource ParentNodeBackgroundConverter}}" />
-                    <Setter Property="BorderBrush"
-                            Value="{Binding Converter={StaticResource ParentNodeBorderBrushConverter}}" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="BorderBrush" Value="Transparent" />
+                </Style>
+
+                <!-- 父节点样式：使用动态资源设置背景和边框 -->
+                <Style Selector="^ /template/ Border#ContentBorder.parent" x:DataType="parser:ProtoDisplayNode">
+                    <Setter Property="Background" Value="{DynamicResource ParentNodeBackground}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource ParentNodeBorder}" />
                 </Style>
 
                 <!-- 鼠标悬停状态：显示 HoverBorder -->

@@ -24,6 +24,16 @@
             <SolidColorBrush x:Key="TreeRowSelectedBackground" Color="#DCE0FE" />
             <SolidColorBrush x:Key="TreeRowHoverBackground" Color="#F0F0F0" />
             
+            <!-- TreeDataGrid Standard Brushes -->
+            <SolidColorBrush x:Key="TreeDataGridGridLinesBrush" Color="#E5E7EB" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPointerOverBrush" Color="#1C1F23" Opacity="0.1" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPressedBrush" Color="#F3F4F6" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPointerOverBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPressedBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPointerOverBrush" Color="#1C1F23" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPressedBrush" Color="#1C1F23" />
+            <SolidColorBrush x:Key="TreeDataGridSelectedCellBackgroundBrush" Color="#DCE0FE" />
+            
             <!-- Search Highlight -->
             <SolidColorBrush x:Key="SearchHighlightBackground" Color="#E8F5E9" />
             <SolidColorBrush x:Key="SearchHighlightBorder" Color="#4CAF50" />
@@ -33,6 +43,16 @@
             <SolidColorBrush x:Key="ExpanderBackground" Color="#E6F0E6" />
             <SolidColorBrush x:Key="ExpanderBorder" Color="#8FBC8F" />
             <SolidColorBrush x:Key="ExpanderForeground" Color="#2F4F4F" />
+            
+            <!-- WireType Colors -->
+            <SolidColorBrush x:Key="WireTypeVarintBrush" Color="#D2691E" /> <!-- Chocolate -->
+            <SolidColorBrush x:Key="WireTypeFixedBrush" Color="#008080" /> <!-- Teal -->
+            <SolidColorBrush x:Key="WireTypeLengthDelimitedBrush" Color="#000000" /> <!-- Black (Original) -->
+            <SolidColorBrush x:Key="WireTypeDefaultBrush" Color="Gray" />
+            
+            <!-- Parent Node Styles -->
+            <SolidColorBrush x:Key="ParentNodeBackground" Color="#F8FAFF" />
+            <SolidColorBrush x:Key="ParentNodeBorder" Color="#DCE0FE" />
         </ResourceDictionary>
         
         <ResourceDictionary x:Key="Dark">
@@ -58,6 +78,16 @@
             <SolidColorBrush x:Key="TreeRowSelectedBackground" Color="#264F78" />
             <SolidColorBrush x:Key="TreeRowHoverBackground" Color="#2A2D2E" />
             
+            <!-- TreeDataGrid Standard Brushes -->
+            <SolidColorBrush x:Key="TreeDataGridGridLinesBrush" Color="#333333" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPointerOverBrush" Color="#FFFFFF" Opacity="0.1" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderBackgroundPressedBrush" Color="#333333" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPointerOverBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderBorderBrushPressedBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPointerOverBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="TreeDataGridHeaderForegroundPressedBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="TreeDataGridSelectedCellBackgroundBrush" Color="#3B82F6" Opacity="0.4" />
+            
             <!-- Search Highlight -->
             <SolidColorBrush x:Key="SearchHighlightBackground" Color="#1E3A2F" />
             <SolidColorBrush x:Key="SearchHighlightBorder" Color="#4CAF50" />
@@ -67,6 +97,16 @@
             <SolidColorBrush x:Key="ExpanderBackground" Color="#2D2D30" />
             <SolidColorBrush x:Key="ExpanderBorder" Color="#555555" />
             <SolidColorBrush x:Key="ExpanderForeground" Color="#E0E0E0" />
+            
+            <!-- WireType Colors -->
+            <SolidColorBrush x:Key="WireTypeVarintBrush" Color="#FFA500" /> <!-- Orange -->
+            <SolidColorBrush x:Key="WireTypeFixedBrush" Color="#20B2AA" /> <!-- LightSeaGreen -->
+            <SolidColorBrush x:Key="WireTypeLengthDelimitedBrush" Color="#E0E0E0" /> <!-- Matches TextPrimary -->
+            <SolidColorBrush x:Key="WireTypeDefaultBrush" Color="#808080" />
+            
+            <!-- Parent Node Styles -->
+            <SolidColorBrush x:Key="ParentNodeBackground" Color="#2D2D30" />
+            <SolidColorBrush x:Key="ParentNodeBorder" Color="#3E3E42" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>
