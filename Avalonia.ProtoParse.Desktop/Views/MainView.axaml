@@ -119,17 +119,15 @@
                             <Button Content="导出节点" CornerRadius="4" Padding="15,6" FontSize="12" />
                         </StackPanel>
 
-                        <!-- 占位符 -->
-
                         <!-- 搜索框 -->
                         <TextBox Grid.Column="3" Watermark="搜索字符串" Width="200" CornerRadius="4" FontSize="12"
                                  VerticalAlignment="Center" Text="{Binding SearchText}"
-                                 Classes="clearButton">
+                                 Classes="ClearButton">
                             <TextBox.InnerLeftContent>
                                 <PathIcon Data="{StaticResource SemiIconSearch}"
+                                          
                                           Foreground="{DynamicResource TextQuaternary}"
-                                          Width="14" Height="14"
-                                          Margin="8,0,0,0" />
+                                          Width="14" Height="14"/>
                             </TextBox.InnerLeftContent>
                             <TextBox.KeyBindings>
                                 <KeyBinding Gesture="Enter" Command="{Binding SearchCommand}" />

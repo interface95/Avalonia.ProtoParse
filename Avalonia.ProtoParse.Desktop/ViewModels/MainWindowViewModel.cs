@@ -33,6 +33,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private string _searchText = "";
 
+    partial void OnSearchTextChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            _ = PerformSearchAsync(string.Empty);
+        }
+    }
+
     [ObservableProperty] private bool _isBusy;
 
     [ObservableProperty] private string _loadingMessage = "解析中...";
