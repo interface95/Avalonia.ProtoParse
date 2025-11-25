@@ -1,14 +1,14 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
-using Avalonia.Layout;
 using Avalonia.Platform.Storage;
 using Avalonia.ProtoParse.Desktop.Core;
 using Avalonia.ProtoParse.Desktop.Helpers;
@@ -21,53 +21,46 @@ namespace Avalonia.ProtoParse.Desktop.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    [ObservableProperty]
-    private HierarchicalTreeDataGridSource<ProtoDisplayNode>? _source;
-
     private readonly ObservableCollection<ProtoDisplayNode> _rootNodes = [];
     private List<ProtoDisplayNode> _allNodes = [];
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsNodeSelected))]
+    #region 属性
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsNodeSelected))]
     private ProtoDisplayNode? _selectedNode;
 
     public bool IsNodeSelected => SelectedNode != null;
 
-    /// <summary>
-    /// Delegate to show file dialog, injected by the View.
-    /// Replaces ReactiveUI Interaction.
-    /// </summary>
-    public Func<Task<IStorageFile?>>? ShowOpenFileDialog { get; set; }
+    [ObservableProperty] private string _searchText = "";
 
-    [ObservableProperty]
-    private string _searchText = "";
+    [ObservableProperty] private bool _isBusy;
 
-    [ObservableProperty]
-    private bool _isBusy;
+    [ObservableProperty] private string _loadingMessage = "解析中...";
 
-    [ObservableProperty]
-    private string _loadingMessage = "解析中...";
+    [ObservableProperty] private string _statusText = "就绪";
 
-    [ObservableProperty]
-    private string _statusText = "就绪";
+    [ObservableProperty] private string? _inputText;
 
-    [ObservableProperty]
-    private string _inputText =
-        "0AA00208AF8EABF5F73210012A99010A1A0A18414E44524F49445F363063656461613162636532666535321235082010011A027A682204584459582A0C362E31312E302E313031313830864F3A12636F6D2E736D696C652E6769666D616B657248031A170A02323512115869616F6475285844482D31382D41312922100802120CE4B8ADE59BBDE7A7BBE58AA83A191A17474D542B30383A303020417369612F5368616E6768616932531A5108011A4D0801220E69735F6C6F67696E3D46414C53452A2461323462663833612D373335642D346365332D623935642D303038383233633835393561300350015A0F564F4943455F424F585F4C4F47494E4A2462616631373736322D333835662D346437382D613130302D3166363939316635666664390AE50308BE96B2F5F73210012A9F010A200A18414E44524F49445F3630636564616131626365326665353210C49CABB30F1235082010011A027A682204584459582A0C362E31312E302E313031313830864F3A12636F6D2E736D696C652E6769666D616B657248031A170A02323512115869616F6475285844482D31382D41312922100802120CE4B8ADE59BBDE7A7BBE58AA83A191A17474D542B30383A303020417369612F5368616E67686169329102228E020A2462616631373736322D333835662D346437382D613130302D3166363939316635666664391808225F0801220D69735F6C6F67696E3D545255452A2462653833623937382D356336302D346661382D613734302D366663323931393766303630300350015A22564F4943455F424F585F4C414E4453434150455F564F4943455F424F585F46494E4452600802220E69735F6C6F67696E3D46414C53452A2465353331636438392D353237662D346265362D626532342D396135383836326334376665300250015A22564F4943455F424F585F4C414E4453434150455F564F4943455F424F585F46494E445A0E420C4C4F47494E5F425554544F4E650000803F720C4C4F47494E5F524553554C544A2462616631373736322D333835662D346437382D613130302D316636393931663566666439";
+    [ObservableProperty] private HierarchicalTreeDataGridSource<ProtoDisplayNode>? _source;
+
+    #endregion
 
     public MainWindowViewModel()
     {
         Source = CreateSource(_rootNodes);
     }
 
+    #region command
+
     [RelayCommand]
-    private async Task Parse()
+    private Task OnParseAsync()
     {
-        if (IsBusy) return;
-        
-        await Task.Run(async () =>
+        if (IsBusy)
+            return Task.CompletedTask;
+
+        return Task.Run(() =>
         {
-            try
+            return RunCommandAsync(() => IsBusy, async () =>
             {
                 if (string.IsNullOrWhiteSpace(InputText))
                 {
@@ -76,17 +69,13 @@ public partial class MainWindowViewModel : ViewModelBase
                 }
 
                 var data = ParserHelper.ProcessInputText(InputText);
-                await ParseDataAsync(data);
-            }
-            catch (Exception ex)
-            {
-                await HandleParseErrorAsync(ex);
-            }
+                await ParseDataAsync(data, updateInputText: false);
+            }, async error => await HandleParseErrorAsync(error));
         });
     }
 
     [RelayCommand]
-    private void Clear()
+    private void OnClear()
     {
         InputText = string.Empty;
         _rootNodes.Clear();
@@ -94,7 +83,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Example()
+    private void OnExample()
     {
         const string rawText =
             "0AA00208AF8EABF5F73210012A99010A1A0A18414E44524F49445F363063656461613162636532666535321235082010011A027A682204584459582A0C362E31312E302E313031313830864F3A12636F6D2E736D696C652E6769666D616B657248031A170A02323512115869616F6475285844482D31382D41312922100802120CE4B8ADE59BBDE7A7BBE58AA83A191A17474D542B30383A303020417369612F5368616E6768616932531A5108011A4D0801220E69735F6C6F67696E3D46414C53452A2461323462663833612D373335642D346365332D623935642D303038383233633835393561300350015A0F564F4943455F424F585F4C4F47494E4A2462616631373736322D333835662D346437382D613130302D3166363939316635666664390AE50308BE96B2F5F73210012A9F010A200A18414E44524F49445F3630636564616131626365326665353210C49CABB30F1235082010011A027A682204584459582A0C362E31312E302E313031313830864F3A12636F6D2E736D696C652E6769666D616B657248031A170A02323512115869616F6475285844482D31382D41312922100802120CE4B8ADE59BBDE7A7BBE58AA83A191A17474D542B30383A303020417369612F5368616E67686169329102228E020A2462616631373736322D333835662D346437382D613130302D3166363939316635666664391808225F0801220D69735F6C6F67696E3D545255452A2462653833623937382D356336302D346661382D613734302D366663323931393766303630300350015A22564F4943455F424F585F4C414E4453434150455F564F4943455F424F585F46494E4452600802220E69735F6C6F67696E3D46414C53452A2465353331636438392D353237662D346265362D626532342D396135383836326334376665300250015A22564F4943455F424F585F4C414E4453434150455F564F4943455F424F585F46494E445A0E420C4C4F47494E5F425554544F4E650000803F720C4C4F47494E5F524553554C544A2462616631373736322D333835662D346437382D613130302D316636393931663566666439";
@@ -107,11 +96,11 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void ExpandAll()
+    private void OnExpandAll()
     {
-        var items = _source?.Items.ToList();
+        var items = Source?.Items.ToList();
         if (items == null) return;
-        
+
         for (var i = 0; i < items.Count; i++)
         {
             ExpandNodeRecursive(items[i], [i]);
@@ -121,7 +110,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private void ExpandNodeRecursive(ProtoDisplayNode node, List<int> path)
     {
         if (!node.Children.Any()) return;
-        _source?.Expand(new IndexPath(path));
+        Source?.Expand(new IndexPath(path));
         for (var i = 0; i < node.Children.Count; i++)
         {
             var newPath = new List<int>(path) { i };
@@ -130,11 +119,11 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void CollapseAll()
+    private void OnCollapseAll()
     {
-        var items = _source?.Items.ToList();
+        var items = Source?.Items.ToList();
         if (items == null) return;
-        
+
         for (var i = 0; i < items.Count; i++)
         {
             Source?.Collapse(new IndexPath(i));
@@ -153,6 +142,9 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// 打开新窗口
+    /// </summary>
     [RelayCommand]
     private void OpenNewWindow()
     {
@@ -163,78 +155,77 @@ public partial class MainWindowViewModel : ViewModelBase
         window.Show();
     }
 
+    /// <summary>
+    /// 搜索节点
+    /// </summary>
     [RelayCommand]
-    private void Search() => PerformSearch(SearchText);
+    private Task OnSearch() => PerformSearchAsync(SearchText);
 
+    /// <summary>
+    /// 导入文件
+    /// </summary>
     [RelayCommand]
-    private async Task ImportFile()
+    private async Task OnImportFileAsync()
     {
-        try
+        var files = await Provider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            if (ShowOpenFileDialog == null) return;
-            
-            var file = await ShowOpenFileDialog();
-            if (file == null) return;
+            Title = "导入 Protobuf 数据文件",
+            AllowMultiple = false,
+            FileTypeFilter = [FilePickerFileTypes.All]
+        });
 
-            IsBusy = true;
-            LoadingMessage = "读取文件中...";
+        var file = files.FirstOrDefault();
+        if (file == null) return;
 
-            byte[] bytes;
-            await using (var stream = await file.OpenReadAsync())
-            {
-                using var ms = new MemoryStream();
-                await stream.CopyToAsync(ms);
-                bytes = ms.ToArray();
-            }
-
-            await ImportBytesAsync(bytes);
-        }
-        catch (Exception ex)
+        _ = Task.Run(() =>
         {
-            await NotificationHelper.ShowErrorAsync($"导入失败: {ex.Message}");
-            IsBusy = false;
-        }
-    }
+            return RunCommandAsync(() => IsBusy, async () =>
+            {
+                IsBusy = true;
+                LoadingMessage = "读取文件中...";
 
-    public async Task ImportBytesAsync(byte[] rawData)
-    {
-        if (IsBusy) return;
-        
-        await Task.Run(async () =>
-        {
-            try
-            {
-                var data = ParserHelper.ProcessInputBytes(rawData);
-                await ParseDataAsync(data);
-            }
-            catch (Exception ex)
-            {
-                await HandleParseErrorAsync(ex);
-            }
+                byte[] bytes;
+                await using (var stream = await file.OpenReadAsync())
+                {
+                    using var ms = new MemoryStream();
+                    await stream.CopyToAsync(ms);
+                    bytes = ms.ToArray();
+                }
+
+                var data = ParserHelper.ProcessInputBytes(bytes);
+                await ParseDataAsync(data, updateInputText: true);
+            }, async error => { await NotificationHelper.ShowErrorAsync($"导入失败: {error.Message}"); });
         });
     }
 
-    private async Task ParseDataAsync(byte[] data)
+    #endregion
+
+    private async Task ParseDataAsync(byte[] data, bool updateInputText)
     {
         IsBusy = true;
         LoadingMessage = "解析中...";
         StatusText = "解析中...";
-        
-        await Dispatcher.UIThread.InvokeAsync(() => _rootNodes.Clear());
 
         var nodes = ProtoParser.Parse(data).ToList();
         var displayNodes = ProtoDisplayNode.FromNodes(nodes).ToList(); // Materialize list
-        
-        StatusText = $"解析成功, 共 {nodes.Count} 个一级字段";
-        _allNodes = displayNodes;
 
+        LoadingMessage = "加载到视图...";
+        StatusText = "加载到视图...";
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            PerformSearch(SearchText);
+            if (updateInputText)
+            {
+                InputText = Convert.ToHexString(data);
+            }
+
+            _rootNodes.Clear();
+            StatusText = $"解析成功, 共 {nodes.Count} 个一级字段";
+            _allNodes = displayNodes;
+            _ = PerformSearchAsync(SearchText);
         });
 
         await NotificationHelper.ShowSuccessAsync($"解析成功，共 {nodes.Count} 个一级字段");
-        
+
         IsBusy = false;
     }
 
@@ -252,7 +243,7 @@ public partial class MainWindowViewModel : ViewModelBase
         IsBusy = false;
     }
 
-    private void PerformSearch(string? text)
+    private async Task PerformSearchAsync(string? text)
     {
         if (_allNodes.Count == 0) return;
 
@@ -264,76 +255,155 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         var searchText = text.Trim();
-        var filtered = FilterNodes(_allNodes, searchText);
+        var context = SearchContext.Create(searchText);
+        var filtered = FilterNodes(_allNodes, context);
         foreach (var node in filtered)
             _rootNodes.Add(node);
 
         if (filtered.Count > 0)
         {
-            ExpandAll();
-            NotificationHelper.ShowInfoAsync($"搜索完成，找到 {filtered.Count} 个匹配项");
+            OnExpandAll();
+            await NotificationHelper.ShowInfoAsync($"搜索完成，找到 {filtered.Count} 个匹配项");
         }
         else
         {
-            NotificationHelper.ShowInfoAsync("未找到匹配项");
+            await NotificationHelper.ShowInfoAsync("未找到匹配项");
         }
 
         (Source?.Selection as ITreeDataGridRowSelectionModel<ProtoDisplayNode>)?.Clear();
     }
 
-    private List<ProtoDisplayNode> FilterNodes(IEnumerable<ProtoDisplayNode> nodes, string searchText)
+    private List<ProtoDisplayNode> FilterNodes(IEnumerable<ProtoDisplayNode> nodes, SearchContext context)
     {
         return (from node in nodes
-            let matches = NodeMatches(node, searchText)
-            let filteredChildren = FilterNodes(node.Children, searchText)
+            let matches = NodeMatches(node, context)
+            let filteredChildren = FilterNodes(node.Children, context)
             where matches || filteredChildren.Count > 0
             select node with { Children = filteredChildren, IsHighlighted = matches }).ToList();
     }
 
-    private bool NodeMatches(ProtoDisplayNode node, string searchText)
+    private bool NodeMatches(ProtoDisplayNode node, SearchContext context)
     {
-        if ((node.Label.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
-            (node.Summary.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
-            (node.FieldDisplay.Contains(searchText, StringComparison.OrdinalIgnoreCase)))
+        if (node.Label.Contains(context.Text, StringComparison.OrdinalIgnoreCase) ||
+            node.Summary.Contains(context.Text, StringComparison.OrdinalIgnoreCase) ||
+            node.FieldDisplay.Contains(context.Text, StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
-        // Fallback: Check RawValue
-        // Skip if node has children, as RawValue will contain children's content
-        if (node.Children.Count > 0) return false;
+        if (node.Children.Count > 0 || node.Node == null || node.Node.RawValue.IsEmpty)
+            return false;
 
-        if (node.Node == null || node.Node.RawValue.IsEmpty) return false;
+        return RawValueMatches(node.Node.RawValue.Span, context);
+    }
 
+    private bool RawValueMatches(ReadOnlySpan<byte> rawValue, SearchContext context)
+    {
+        if (rawValue.IsEmpty || context.SearchRunes.Length == 0)
+            return false;
+
+        if (Utf8ContainsOrdinalIgnoreCase(rawValue, context.SearchRunes))
+            return true;
+
+        return context.CanUseAsciiFallback && ContainsPrintableAscii(rawValue, context.SearchRunes);
+    }
+
+    private static bool ContainsPrintableAscii(ReadOnlySpan<byte> data, ReadOnlySpan<Rune> searchRunes)
+    {
+        if (data.IsEmpty)
+            return false;
+
+        var pool = ArrayPool<byte>.Shared;
+        var rented = pool.Rent(data.Length);
         try
         {
-            // 1. Try standard UTF8
-            var text = System.Text.Encoding.UTF8.GetString(node.Node.RawValue.Span);
-            if (text.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-                return true;
+            var count = 0;
+            foreach (var b in data)
+            {
+                if (IsPrintableAscii(b))
+                {
+                    rented[count++] = b;
+                }
+            }
 
-            // 2. Try extracting printable ASCII (like 'strings' command)
-            // This helps when binary tags mess up UTF8 decoding
-            var ascii = new string(node.Node.RawValue.Span.ToArray()
-                .Where(b => b is >= 32 and <= 126)
-                .Select(b => (char)b).ToArray());
-
-            if (ascii.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-                return true;
+            return count != 0 && Utf8ContainsOrdinalIgnoreCase(rented.AsSpan(0, count), searchRunes);
         }
-        catch
+        finally
         {
-            // Ignore errors
+            pool.Return(rented);
+        }
+    }
+
+    private static bool Utf8ContainsOrdinalIgnoreCase(ReadOnlySpan<byte> source, ReadOnlySpan<Rune> searchRunes)
+    {
+        if (searchRunes.IsEmpty)
+            return false;
+
+        var offset = 0;
+        while (offset < source.Length)
+        {
+            if (!TryDecodeRune(source[offset..], out _, out var consumedAtStart))
+            {
+                offset++;
+                continue;
+            }
+
+            if (StartsWithRunes(source[offset..], searchRunes))
+                return true;
+
+            offset += consumedAtStart;
         }
 
         return false;
+    }
+
+    private static bool StartsWithRunes(ReadOnlySpan<byte> source, ReadOnlySpan<Rune> expectedRunes)
+    {
+        var offset = 0;
+        foreach (var t in expectedRunes)
+        {
+            if (!TryDecodeRune(source[offset..], out var rune, out var consumed))
+                return false;
+
+            if (Rune.ToUpperInvariant(rune) != t)
+                return false;
+
+            offset += consumed;
+        }
+
+        return true;
+    }
+
+    private static bool TryDecodeRune(ReadOnlySpan<byte> source, out Rune rune, out int consumed)
+    {
+        var status = Rune.DecodeFromUtf8(source, out rune, out consumed);
+        if (status == OperationStatus.Done)
+            return true;
+
+        rune = default;
+        consumed = 0;
+        return false;
+    }
+
+    private static bool IsPrintableAscii(byte value) => value is >= 32 and <= 126;
+
+    private readonly record struct SearchContext(string Text, Rune[] SearchRunes, bool CanUseAsciiFallback)
+    {
+        public static SearchContext Create(string text)
+        {
+            var runes = text.EnumerateRunes()
+                .Select(static r => Rune.ToUpperInvariant(r))
+                .ToArray();
+            var canUseAsciiFallback = text.All(static c => c is >= ' ' and <= '~');
+            return new SearchContext(text, runes, canUseAsciiFallback);
+        }
     }
 
     private HierarchicalTreeDataGridSource<ProtoDisplayNode> CreateSource(IEnumerable<ProtoDisplayNode> items)
     {
         var cellTemplate =
             (Avalonia.Controls.Templates.IDataTemplate)Application.Current!.FindResource("ProtoNodeTemplate")!;
-        
+
         var source = new HierarchicalTreeDataGridSource<ProtoDisplayNode>(items)
         {
             Columns =

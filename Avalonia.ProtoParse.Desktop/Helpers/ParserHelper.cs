@@ -57,28 +57,27 @@ public static class ParserHelper
     /// </summary>
     public static byte[] ProcessInputBytes(byte[] data)
     {
-        if (data == null || data.Length == 0) return Array.Empty<byte>();
-        return TryDecompress(data);
+        return data.Length == 0 ? [] : TryDecompress(data);
     }
 
     private static byte[] TryDecompress(byte[] data)
     {
         // Check for Gzip Magic Number (0x1F 0x8B)
-        if (data.Length > 2 && data[0] == 0x1F && data[1] == 0x8B)
+        if (data.Length <= 2 || data[0] != 0x1F || data[1] != 0x8B) 
+            return data;
+        
+        try
         {
-            try
-            {
-                using var ms = new MemoryStream(data);
-                using var gzip = new GZipStream(ms, CompressionMode.Decompress);
-                using var outMs = new MemoryStream();
-                gzip.CopyTo(outMs);
-                return outMs.ToArray();
-            }
-            catch
-            {
-                // Ignore Gzip errors, might be false positive or corrupted, fallback to original data
-                return data;
-            }
+            using var ms = new MemoryStream(data);
+            using var gzip = new GZipStream(ms, CompressionMode.Decompress);
+            using var outMs = new MemoryStream();
+            gzip.CopyTo(outMs);
+            return outMs.ToArray();
+        }
+        catch
+        {
+            // Ignore Gzip errors, might be false positive or corrupted, fallback to original data
+            return data;
         }
         return data;
     }
