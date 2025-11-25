@@ -22,15 +22,15 @@
         <Grid Grid.IsSharedSizeScope="True">
             <Grid.ColumnDefinitions>
                 <!-- 左侧列：原始数据输入 -->
-                <ColumnDefinition Width="320" MinWidth="300" />
+                <ColumnDefinition Width="280" MinWidth="200" />
                 <!-- 分割线 -->
                 <ColumnDefinition Width="1" />
                 <!-- 中间列：结构树 -->
-                <ColumnDefinition Width="*" MinWidth="300" />
+                <ColumnDefinition Width="*" MinWidth="200" />
                 <!-- 分割线 -->
                 <ColumnDefinition Width="1" />
                 <!-- 右侧列：字段属性 -->
-                <ColumnDefinition Width="300" MinWidth="250" />
+                <ColumnDefinition Width="260" MinWidth="200" />
             </Grid.ColumnDefinitions>
 
             <!-- 左侧列：输入区域 -->
