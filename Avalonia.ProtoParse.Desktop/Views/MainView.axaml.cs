@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using Avalonia.ProtoParse.Desktop.ViewModels;
 using WindowNotificationManager = Ursa.Controls.WindowNotificationManager;
@@ -15,6 +16,34 @@ public partial class MainView : UserControl
     {
         InitializeComponent();
         InputEditor.TextChanged += InputEditor_TextChanged;
+        AddHandler(DragDrop.DragOverEvent, DragOver);
+        AddHandler(DragDrop.DropEvent, Drop);
+    }
+
+    private void DragOver(object? sender, DragEventArgs e)
+    {
+        if (e.Data.Contains(DataFormats.Files))
+        {
+            e.DragEffects = DragDropEffects.Copy;
+        }
+        else
+        {
+            e.DragEffects = DragDropEffects.None;
+        }
+    }
+
+    private async void Drop(object? sender, DragEventArgs e)
+    {
+        if (DataContext is not MainWindowViewModel vm) return;
+        
+        var files = e.Data.GetFiles();
+        if (files == null) return;
+
+        var item = files.FirstOrDefault();
+        if (item is IStorageFile file)
+        {
+            await vm.ImportFileAsync(file);
+        }
     }
 
     protected override void OnDataContextChanged(EventArgs e)

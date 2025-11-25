@@ -79,6 +79,5 @@ public static class ParserHelper
             // Ignore Gzip errors, might be false positive or corrupted, fallback to original data
             return data;
         }
-        return data;
     }
 }

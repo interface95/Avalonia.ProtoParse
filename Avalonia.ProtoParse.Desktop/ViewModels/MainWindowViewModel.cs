@@ -203,6 +203,11 @@ public partial class MainWindowViewModel : ViewModelBase
         var file = files.FirstOrDefault();
         if (file == null) return;
 
+        await ImportFileAsync(file);
+    }
+
+    public async Task ImportFileAsync(IStorageFile file)
+    {
         _ = Task.Run(() =>
         {
             return RunCommandAsync(() => IsBusy, async () =>

@@ -8,7 +8,8 @@
              xmlns:core="clr-namespace:Avalonia.ProtoParse.Desktop.Core"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Avalonia.ProtoParse.Desktop.Views.MainView"
-             x:DataType="vm:MainWindowViewModel">
+             x:DataType="vm:MainWindowViewModel"
+             DragDrop.AllowDrop="True">
 
     <u:LoadingContainer IsLoading="{Binding IsBusy}"
                         LoadingMessage="{Binding LoadingMessage}"
