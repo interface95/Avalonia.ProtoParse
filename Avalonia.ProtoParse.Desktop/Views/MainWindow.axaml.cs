@@ -12,6 +12,13 @@ public partial class MainWindow : UrsaWindow
     {
         InitializeComponent();
         InputEditor.TextChanged += InputEditor_TextChanged;
+        
+        // Register Notification Manager
+        NotificationHelper.Notification = new WindowNotificationManager(this)
+        {
+            MaxItems = 3,
+            Position = Avalonia.Controls.Notifications.NotificationPosition.TopRight
+        };
     }
 
     protected override void OnDataContextChanged(EventArgs e)

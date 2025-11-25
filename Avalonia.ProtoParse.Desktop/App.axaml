@@ -5,7 +5,7 @@
              xmlns:core="using:Protobuf.Decode.Parser"
              x:Class="Avalonia.ProtoParse.Desktop.App"
              xmlns:u-semi="https://irihi.tech/ursa/themes/semi"
-             RequestedThemeVariant="Light">
+             RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
   
     <Application.Resources>
