@@ -16,11 +16,14 @@ using Avalonia.ProtoParse.Desktop.Views;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using WindowNotificationManager = Ursa.Controls.WindowNotificationManager;
 
 namespace Avalonia.ProtoParse.Desktop.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
+    public WindowNotificationManager? NotificationManager { get; set; }
+
     private readonly ObservableCollection<ProtoDisplayNode> _rootNodes = [];
     private List<ProtoDisplayNode> _allNodes = [];
 
@@ -188,6 +191,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task OnImportFileAsync()
     {
+        if (Provider is null) return;
+
         var files = await Provider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "导入 Protobuf 数据文件",
@@ -215,7 +220,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
                 var data = ParserHelper.ProcessInputBytes(bytes);
                 await ParseDataAsync(data, updateInputText: true);
-            }, async error => { await NotificationHelper.ShowErrorAsync($"导入失败: {error.Message}"); });
+            }, async error => { await NotificationManager.ShowErrorAsync($"导入失败: {error.Message}"); });
         });
     }
 
@@ -245,7 +250,7 @@ public partial class MainWindowViewModel : ViewModelBase
             _ = PerformSearchAsync(SearchText);
         });
 
-        await NotificationHelper.ShowSuccessAsync($"解析成功，共 {nodes.Count} 个一级字段");
+        await NotificationManager.ShowSuccessAsync($"解析成功，共 {nodes.Count} 个一级字段");
 
         IsBusy = false;
     }
@@ -297,7 +302,7 @@ public partial class MainWindowViewModel : ViewModelBase
             _rootNodes.Add(errorNode);
         });
 
-        await NotificationHelper.ShowErrorAsync($"解析失败: {ex.Message}");
+        await NotificationManager.ShowErrorAsync($"解析失败: {ex.Message}");
         IsBusy = false;
     }
 
@@ -322,11 +327,11 @@ public partial class MainWindowViewModel : ViewModelBase
         if (matchCount > 0)
         {
             OnExpandAll();
-            await NotificationHelper.ShowInfoAsync($"搜索完成，找到 {matchCount} 个匹配项");
+            await NotificationManager.ShowInfoAsync($"搜索完成，找到 {matchCount} 个匹配项");
         }
         else
         {
-            await NotificationHelper.ShowInfoAsync("未找到匹配项");
+            await NotificationManager.ShowInfoAsync("未找到匹配项");
         }
 
         (Source?.Selection as ITreeDataGridRowSelectionModel<ProtoDisplayNode>)?.Clear();

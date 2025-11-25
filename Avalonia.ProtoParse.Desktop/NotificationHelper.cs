@@ -7,12 +7,11 @@ namespace Avalonia.ProtoParse.Desktop;
 
 internal static class NotificationHelper
 {
-    public static WindowNotificationManager? Notification;
-
-    public static async System.Threading.Tasks.Task ShowAsync(Notification notification, TimeSpan? expiration = null)
+    public static async System.Threading.Tasks.Task ShowAsync(this WindowNotificationManager? manager, Notification notification, TimeSpan? expiration = null)
     {
+        if (manager is null) return;
         await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-            Notification?.Show(notification,
+            manager.Show(notification,
                 showIcon: true,
                 showClose: true,
                 expiration: notification.Expiration,
@@ -22,17 +21,19 @@ internal static class NotificationHelper
     /// <summary>
     /// 普通消息
     /// </summary>
+    /// <param name="manager"></param>
     /// <param name="message"></param>
     /// <param name="title"></param>
     /// <param name="expiration"></param>
     public static async System.Threading.Tasks.Task ShowInfoAsync(
+        this WindowNotificationManager? manager,
         string message = "",
         string title = "通知",
         TimeSpan? expiration = null)
     {
         expiration ??= TimeSpan.FromSeconds(5);
 
-        await ShowAsync(new Notification(
+        await manager.ShowAsync(new Notification(
             title: title,
             expiration: expiration.Value,
             content: message,
@@ -42,16 +43,18 @@ internal static class NotificationHelper
     /// <summary>
     /// 成功消息
     /// </summary>
+    /// <param name="manager"></param>
     /// <param name="message"></param>
     /// <param name="title"></param>
     /// <param name="expiration"></param>
     public static async System.Threading.Tasks.Task ShowSuccessAsync(
+        this WindowNotificationManager? manager,
         string message = "",
         string title = "通知",
         TimeSpan? expiration = null)
     {
         expiration ??= TimeSpan.FromSeconds(5);
-        await ShowAsync(new Notification(
+        await manager.ShowAsync(new Notification(
             title: title,
             expiration: expiration.Value,
             content: message,
@@ -61,17 +64,19 @@ internal static class NotificationHelper
     /// <summary>
     /// 错误消息
     /// </summary>
+    /// <param name="manager"></param>
     /// <param name="message"></param>
     /// <param name="title"></param>
     /// <param name="expiration"></param>
     public static async System.Threading.Tasks.Task ShowErrorAsync(
+        this WindowNotificationManager? manager,
         string message = "",
         string title = "异常",
         TimeSpan? expiration = null)
     {
         expiration ??= TimeSpan.FromSeconds(5);
 
-        await ShowAsync(new Notification(
+        await manager.ShowAsync(new Notification(
             title: title,
             content: message,
             expiration: expiration.Value,

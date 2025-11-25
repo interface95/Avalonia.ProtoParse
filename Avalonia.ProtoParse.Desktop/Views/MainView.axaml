@@ -30,7 +30,7 @@
                 <!-- 分割线 -->
                 <ColumnDefinition Width="1" />
                 <!-- 右侧列：字段属性 -->
-                <ColumnDefinition Width="260" MinWidth="200" />
+                <ColumnDefinition Width="260" MinWidth="270" />
             </Grid.ColumnDefinitions>
 
             <!-- 左侧列：输入区域 -->

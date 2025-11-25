@@ -59,8 +59,12 @@ public partial class MainView : UserControl
 
         ArgumentNullException.ThrowIfNull(topLevel);
 
-        ViewModelBase.SetTopLevel(topLevel);
-        NotificationHelper.Notification = new WindowNotificationManager(topLevel)
-            { MaxItems = 10, Position = NotificationPosition.TopRight };
+        if (DataContext is MainWindowViewModel vm)
+        {
+            vm.Clipboard = topLevel.Clipboard;
+            vm.Provider = topLevel.StorageProvider;
+            vm.NotificationManager = new WindowNotificationManager(topLevel)
+                { MaxItems = 10, Position = NotificationPosition.TopRight };
+        }
     }
 }

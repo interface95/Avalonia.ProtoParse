@@ -13,14 +13,8 @@ namespace Avalonia.ProtoParse.Desktop.ViewModels;
 public abstract class ViewModelBase : ObservableObject
 {
     private readonly Lock _sync = new();
-    protected static IClipboard Clipboard { get; private set; } = null!;
-    protected static IStorageProvider Provider { get; private set; } = null!;
-
-    public static void SetTopLevel(TopLevel topLevel)
-    {
-        Clipboard = topLevel.Clipboard!;
-        Provider = topLevel!.StorageProvider;
-    }
+    public IClipboard? Clipboard { get; set; }
+    public IStorageProvider? Provider { get; set; }
 
     /// <summary>
     /// Runs a command if the updating flag is not set.
