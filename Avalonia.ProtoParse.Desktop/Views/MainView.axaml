@@ -45,7 +45,7 @@
                 </Grid.RowDefinitions>
                 <!-- 标题栏 -->
                 <Border Grid.Row="0" Margin="0,0,0,0" 
-                        Padding="5,8" 
+                        Padding="5,15" 
                         BorderBrush="{DynamicResource BorderBrush}" 
                         BorderThickness="0,0,0,1">
                     <Grid ColumnDefinitions="Auto, *">

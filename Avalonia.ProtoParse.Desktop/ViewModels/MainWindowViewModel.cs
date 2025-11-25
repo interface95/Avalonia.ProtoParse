@@ -132,10 +132,10 @@ public partial class MainWindowViewModel : ViewModelBase
         for (var i = 0; i < items.Count; i++)
         {
             pathBuffer.Add(i);
-            // 先收缩当前节点
-            Source?.Collapse(new IndexPath(pathBuffer));
-            // 再递归收缩子节点
+            // 先递归收缩子节点
             CollapseNodeRecursive(items[i], pathBuffer);
+            // 再收缩当前节点
+            Source?.Collapse(new IndexPath(pathBuffer));
             pathBuffer.RemoveAt(pathBuffer.Count - 1);
         }
     }
@@ -143,11 +143,14 @@ public partial class MainWindowViewModel : ViewModelBase
     private void CollapseNodeRecursive(ProtoDisplayNode node, List<int> path)
     {
         if (!node.Children.Any()) return;
-        Source?.Collapse(new IndexPath(path));
+        
         for (var i = 0; i < node.Children.Count; i++)
         {
             path.Add(i);
+            // 递归收缩孙节点
             CollapseNodeRecursive(node.Children[i], path);
+            // 收缩子节点
+            Source?.Collapse(new IndexPath(path));
             path.RemoveAt(path.Count - 1);
         }
     }
@@ -229,7 +232,7 @@ public partial class MainWindowViewModel : ViewModelBase
             }
 
             _rootNodes.Clear();
-            StatusText = $"解析成功, 共 {nodes.Count} 个一级字段";
+            StatusText = $"解析成功, 共 {nodes.Count} 个一级字段, 总大小: {data.Length:N0} 字节";
             _allNodes = displayNodes;
             _ = PerformSearchAsync(SearchText);
         });
@@ -245,33 +248,33 @@ public partial class MainWindowViewModel : ViewModelBase
         
         // 限制最大显示大小，防止界面卡死 (例如限制为 5MB 数据 -> 10MB 文本)
         // 如果用户一定要看大文件，建议使用专门的 Hex 编辑器控件
-        const int MaxBytesToDisplay = 5 * 1024 * 1024;
+        const int maxBytesToDisplay = 20 * 1024 * 1024;
         
         var displayData = data;
         var isTruncated = false;
         
-        if (data.Length > MaxBytesToDisplay)
+        if (data.Length > maxBytesToDisplay)
         {
-            displayData = data[..MaxBytesToDisplay];
+            displayData = data[..maxBytesToDisplay];
             isTruncated = true;
         }
 
-        const int BytesPerLine = 32;
-        var sb = new StringBuilder(displayData.Length * 2 + (displayData.Length / BytesPerLine) * 2);
+        const int bytesPerLine = 42;
+        var sb = new StringBuilder(displayData.Length * 2 + (displayData.Length / bytesPerLine) * 2);
         
-        for (int i = 0; i < displayData.Length; i += BytesPerLine)
+        for (var i = 0; i < displayData.Length; i += bytesPerLine)
         {
             if (i > 0) sb.AppendLine();
-            int count = Math.Min(BytesPerLine, displayData.Length - i);
+            var count = Math.Min(bytesPerLine, displayData.Length - i);
             sb.Append(Convert.ToHexString(displayData, i, count));
         }
 
-        if (isTruncated)
-        {
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.Append($"// ... (数据过大，仅显示前 {MaxBytesToDisplay/1024} KB，共 {data.Length/1024} KB)");
-        }
+        if (!isTruncated) 
+            return sb.ToString();
+        
+        sb.AppendLine();
+        sb.AppendLine();
+        sb.Append($"// ... (数据过大，仅显示前 {maxBytesToDisplay/1024} KB，共 {data.Length/1024} KB)");
 
         return sb.ToString();
     }

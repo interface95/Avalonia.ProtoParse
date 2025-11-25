@@ -246,8 +246,8 @@
             <!-- 展开/折叠箭头样式 -->
             <ControlTheme x:Key="TreeDataGridExpandCollapseChevron" TargetType="ToggleButton">
                 <Setter Property="Margin" Value="0" />
-                <Setter Property="Width" Value="17" />
-                <Setter Property="Height" Value="17" />
+                <Setter Property="Width" Value="20" />
+                <Setter Property="Height" Value="20" />
                 <Setter Property="Template">
                     <ControlTemplate>
                         <Border Background="{DynamicResource ExpanderBackground}"
@@ -258,7 +258,7 @@
                                 Height="{TemplateBinding Height}"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center">
-                            <Viewbox Width="8" Height="8"
+                            <Viewbox Width="13" Height="13"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center">
                                 <Path x:Name="ChevronPath"
