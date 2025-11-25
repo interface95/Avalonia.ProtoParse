@@ -14,7 +14,8 @@ public sealed record ProtoDisplayNode(
     int FieldNumber,
     ProtoWireType WireType,
     string Summary,
-    string RawPreview)
+    string RawPreview,
+    bool IsHighlighted = false)
 {
     public bool IsError => Node is null && Children.Count == 0;
     public bool IsRepeated => TryGetOccurrenceIndexFromSegment(GetLastSegment(Path), out _);
@@ -22,6 +23,7 @@ public sealed record ProtoDisplayNode(
     public string FieldDisplay => FormatFieldDisplay();
     public string WireTypeDisplay => WireType.ToString();
     public bool IsArrayGroup => Node is null && Children.Count > 0;
+    public string? Utf8Preview => Node is not null ? TryGetUtf8(Node.RawValue.Span) : null;
 
     public ProtoDisplayNode(ProtoNode node, string path)
         : this(CreateLabel(node), node, path,
@@ -29,7 +31,8 @@ public sealed record ProtoDisplayNode(
             node.FieldNumber,
             node.WireType,
             CreateSummary(node),
-            CreateRawPreview(node))
+            CreateRawPreview(node),
+            false)
     {
     }
 
@@ -42,7 +45,7 @@ public sealed record ProtoDisplayNode(
             : Array.Empty<ProtoDisplayNode>();
 
     public static ProtoDisplayNode CreateError(string message)
-        => new(message, null, string.Empty, Array.Empty<ProtoDisplayNode>(), -1, 0, message, string.Empty);
+        => new(message, null, string.Empty, Array.Empty<ProtoDisplayNode>(), -1, 0, message, string.Empty, false);
 
     public static long VarintToValue(ReadOnlySpan<byte> span)
     {
@@ -237,7 +240,7 @@ public sealed record ProtoDisplayNode(
     {
         var label = $"#{fieldNumber} 数组";
         var summary = $"数组 · {children.Count} 个元素 · 长度 {totalLength}";
-        return new ProtoDisplayNode(label, null, path, children, fieldNumber, wireType, summary, string.Empty);
+        return new ProtoDisplayNode(label, null, path, children, fieldNumber, wireType, summary, string.Empty, false);
     }
 
     private static string ComposePath(string parentPath, string segment)

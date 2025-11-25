@@ -10,14 +10,32 @@
   
     <Application.Resources>
         <converters:WireTypeToBrushConverter x:Key="WireTypeToBrushConverter" />
+        <converters:BoolToBrushConverter x:Key="HighlightBackgroundConverter" TrueBrush="#E8F5E9" FalseBrush="Transparent" />
         <DataTemplate x:Key="ProtoNodeTemplate" DataType="core:ProtoDisplayNode">
-            <Grid ColumnDefinitions="Auto, Auto, *" TextElement.Foreground="{Binding WireType, Converter={StaticResource WireTypeToBrushConverter}}">
-                 <Border Grid.Column="0" MinWidth="28" Height="25" CornerRadius="12" Background="#E6E8FA" Margin="0,0,10,0">
-                     <TextBlock Text="{Binding FieldDisplay}" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="4,0" Foreground="Black"/>
-                 </Border>
-                 <TextBlock Grid.Column="1" Text="{Binding WireTypeDisplay}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                 <TextBlock Grid.Column="2" Text="{Binding Summary}" VerticalAlignment="Center" Margin="0,0,5,0" TextTrimming="CharacterEllipsis"/>
-            </Grid>
+            <Border CornerRadius="4" Padding="4,2" Classes.highlighted="{Binding IsHighlighted}" Background="Transparent">
+                <Grid ColumnDefinitions="Auto, Auto, *" TextElement.Foreground="{Binding WireType, Converter={StaticResource WireTypeToBrushConverter}}">
+                     <Border Classes="field-badge" Grid.Column="0" 
+                             MinWidth="28" 
+                             Height="25" 
+                             CornerRadius="12" 
+                             Background="#E6E8FA" 
+                             Margin="0,0,10,0">
+                         <TextBlock Text="{Binding FieldDisplay}"
+                                    HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center" 
+                                    Padding="4,0"
+                                    Foreground="Black"/>
+                     </Border>
+                     <TextBlock Grid.Column="1" 
+                                Text="{Binding WireTypeDisplay}" 
+                                VerticalAlignment="Center" 
+                                Margin="0,0,10,0"/>
+                     <TextBlock Grid.Column="2" 
+                                Text="{Binding Summary}" 
+                                VerticalAlignment="Center" 
+                                Margin="0,0,5,0" TextTrimming="CharacterEllipsis"/>
+                </Grid>
+            </Border>
         </DataTemplate>
     </Application.Resources>
 

@@ -163,241 +163,291 @@
 
       </ControlTheme>
 
-      <ControlTheme x:Key="{x:Type TreeDataGridRow}" TargetType="TreeDataGridRow">
-        <Setter Property="Template">
-          <ControlTemplate>
-            <Border x:Name="RowBorder"
-                    Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    CornerRadius="{TemplateBinding CornerRadius}">
-              <TreeDataGridCellsPresenter Name="PART_CellsPresenter"
-                                          ElementFactory="{TemplateBinding ElementFactory}"
-                                          Items="{TemplateBinding Columns}"
-                                          Rows="{TemplateBinding Rows}" />
-            </Border>
-          </ControlTemplate>
-        </Setter>
+  <!-- 
+    TreeDataGridRow 样式
+    定义了行的基本外观和选中/悬停状态
+  -->
+  <ControlTheme x:Key="{x:Type TreeDataGridRow}" TargetType="TreeDataGridRow">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="RowBorder"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <TreeDataGridCellsPresenter Name="PART_CellsPresenter"
+                                      ElementFactory="{TemplateBinding ElementFactory}"
+                                      Items="{TemplateBinding Columns}"
+                                      Rows="{TemplateBinding Rows}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
 
-        <Style Selector="^:selected /template/ TreeDataGridCellsPresenter#PART_CellsPresenter">
-          <Setter Property="Background" Value="Transparent" />
-        </Style>
-        <Style Selector="^:pointerover /template/ TreeDataGridCellsPresenter#PART_CellsPresenter">
-          <Setter Property="Background" Value="Transparent" />
-        </Style>
+    <!-- 选中时，移除 CellsPresenter 的背景，以便让底层的 Border#HoverBorder 显示出来 -->
+    <Style Selector="^:selected /template/ TreeDataGridCellsPresenter#PART_CellsPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <!-- 悬停时，移除 CellsPresenter 的背景 -->
+    <Style Selector="^:pointerover /template/ TreeDataGridCellsPresenter#PART_CellsPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
 
-      </ControlTheme>
+  </ControlTheme>
 
-      <ControlTheme x:Key="{x:Type TreeDataGridCheckBoxCell}" TargetType="TreeDataGridCheckBoxCell">
-        <Setter Property="Padding" Value="4 2" />
-        <Setter Property="Template">
-          <ControlTemplate>
-            <Border x:Name="CellBorder"
-                    Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    CornerRadius="{TemplateBinding CornerRadius}"
-                    Padding="{TemplateBinding Padding}">
-              <CheckBox IsChecked="{TemplateBinding Value, Mode=TwoWay}"
-                        IsEnabled="{Binding !IsReadOnly, RelativeSource={RelativeSource TemplatedParent}}"
-                        IsThreeState="{TemplateBinding IsThreeState}" />
-            </Border>
-          </ControlTemplate>
-        </Setter>
-      </ControlTheme>
+  <!-- TreeDataGridCheckBoxCell 样式 -->
+  <ControlTheme x:Key="{x:Type TreeDataGridCheckBoxCell}" TargetType="TreeDataGridCheckBoxCell">
+    <Setter Property="Padding" Value="4 2" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="CellBorder"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                Padding="{TemplateBinding Padding}">
+          <CheckBox IsChecked="{TemplateBinding Value, Mode=TwoWay}"
+                    IsEnabled="{Binding !IsReadOnly, RelativeSource={RelativeSource TemplatedParent}}"
+                    IsThreeState="{TemplateBinding IsThreeState}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
 
-      <ControlTheme x:Key="TreeDataGridExpandCollapseChevron" TargetType="ToggleButton">
-        <Setter Property="Margin" Value="0" />
-        <Setter Property="Width" Value="17" />
-        <Setter Property="Height" Value="17" />
-        <Setter Property="Template">
-          <ControlTemplate>
-            <Border Background="#E6F0E6"
-                    BorderBrush="#8FBC8F"
-                    BorderThickness="1"
-                    CornerRadius="4"
-                    Width="{TemplateBinding Width}"
-                    Height="{TemplateBinding Height}"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
-              <Path x:Name="ChevronPath"
-                    Data="{StaticResource TreeDataGridItemCollapsedChevronPathData}"
-                    Fill="#2F4F4F"
-                    Stretch="Uniform"
-                    Width="8" Height="8"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center" />
-            </Border>
-          </ControlTemplate>
-        </Setter>
-        <Style Selector="^:checked /template/ Path#ChevronPath">
-          <Setter Property="Data" Value="{StaticResource TreeDataGridItemExpandedChevronPathData}" />
-        </Style>
-      </ControlTheme>
+  <!-- 展开/折叠箭头样式 -->
+  <ControlTheme x:Key="TreeDataGridExpandCollapseChevron" TargetType="ToggleButton">
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Width" Value="17" />
+    <Setter Property="Height" Value="17" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="#E6F0E6"
+                BorderBrush="#8FBC8F"
+                BorderThickness="1"
+                CornerRadius="4"
+                Width="{TemplateBinding Width}"
+                Height="{TemplateBinding Height}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+          <Viewbox Width="8" Height="8"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center">
+            <Path x:Name="ChevronPath"
+                  Data="{StaticResource TreeDataGridItemCollapsedChevronPathData}"
+                  Fill="#2F4F4F"
+                  Stretch="Uniform" />
+          </Viewbox>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    <Style Selector="^:checked /template/ Path#ChevronPath">
+      <Setter Property="Data" Value="{StaticResource TreeDataGridItemExpandedChevronPathData}" />
+    </Style>
+  </ControlTheme>
 
-      <ControlTheme x:Key="{x:Type TreeDataGridExpanderCell}" TargetType="TreeDataGridExpanderCell">
-        <Setter Property="Template">
-          <ControlTemplate>
-            <Border x:Name="CellBorder"
-                    Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    CornerRadius="{TemplateBinding CornerRadius}"
-                    Padding="{TemplateBinding Indent, Converter={x:Static conv:IndentConverter.Instance}}">
-              <Panel>
-                  <!-- Base Background Layer (Parent Node Style) -->
-                  <Border x:Name="ContentBorder"
-                          x:DataType="parser:ProtoDisplayNode"
-                          BorderThickness="{Binding Converter={StaticResource ParentNodeBorderThicknessConverter}}"
-                          CornerRadius="6"
-                          MinHeight="47"
-                          Margin="20,2"/>
+  <!-- 
+    TreeDataGridExpanderCell 样式 (核心样式)
+    包含展开/折叠按钮和节点内容
+  -->
+  <ControlTheme x:Key="{x:Type TreeDataGridExpanderCell}" TargetType="TreeDataGridExpanderCell">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="CellBorder"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                Padding="{TemplateBinding Indent, Converter={x:Static conv:IndentConverter.Instance}}">
+          <!-- 使用透明背景的 Panel 确保点击事件能被捕获 -->
+          <Panel Background="Transparent">
+              <!-- 基础背景层 (根据是否有子节点显示不同背景) -->
+              <Border x:Name="ContentBorder"
+                      x:DataType="parser:ProtoDisplayNode"
+                      BorderThickness="{Binding Converter={StaticResource ParentNodeBorderThicknessConverter}}"
+                      CornerRadius="6"
+                      MinHeight="47"
+                      Margin="20,2"/>
 
-                  <!-- Hover/Selected Overlay Layer -->
-                  <Border x:Name="HoverBorder"
-                          CornerRadius="6"
-                          MinHeight="47"
-                          Margin="20,2"
-                          Background="{DynamicResource TreeDataGridSelectedCellBackgroundBrush}"
-                          BorderBrush="{DynamicResource TreeDataGridSelectedCellBackgroundBrush}"
-                          BorderThickness="1"
-                          Opacity="0"
-                          IsHitTestVisible="False">
-                      <Border.Transitions>
-                          <Transitions>
-                              <DoubleTransition Property="Opacity" Duration="0:0:0.1" />
-                          </Transitions>
-                      </Border.Transitions>
-                  </Border>
-
-                  <!-- Content Layer -->
-                  <DockPanel Margin="20,2">
-                    <Border DockPanel.Dock="Left"
-                            Margin="12,0,24,0"
-                            VerticalAlignment="Center"
-                            Width="18" Height="18">
-                      <ToggleButton Theme="{StaticResource TreeDataGridExpandCollapseChevron}"
-                                    Focusable="False"
-                                    IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}"
-                                    IsVisible="{TemplateBinding ShowExpander}" />
-                    </Border>
-                    <Decorator Name="PART_Content" />
-                  </DockPanel>
-              </Panel>
-            </Border>
-          </ControlTemplate>
-        </Setter>
-
-        <!-- Base Style for ContentBorder (Parent Node Logic) -->
-        <Style Selector="^ /template/ Border#ContentBorder" x:DataType="parser:ProtoDisplayNode">
-          <Setter Property="Background" Value="{Binding Converter={StaticResource ParentNodeBackgroundConverter}}" />
-          <Setter Property="BorderBrush" Value="{Binding Converter={StaticResource ParentNodeBorderBrushConverter}}" />
-        </Style>
-
-        <!-- PointerOver: Fade in HoverBorder -->
-        <Style Selector="^:pointerover /template/ Border#HoverBorder">
-          <Setter Property="Opacity" Value="1" />
-        </Style>
-
-        <!-- Selected: Show HoverBorder (Instant or Animated) -->
-        <Style Selector="^:selected /template/ Border#HoverBorder">
-          <Setter Property="Opacity" Value="1" />
-        </Style>
-      </ControlTheme>
-
-      <ControlTheme x:Key="{x:Type TreeDataGridTextCell}" TargetType="TreeDataGridTextCell">
-        <Setter Property="Padding" Value="4 2" />
-        <Setter Property="Template">
-          <ControlTemplate>
-            <Border x:Name="CellBorder"
-                    Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    CornerRadius="{TemplateBinding CornerRadius}"
-                    Padding="{TemplateBinding Padding}">
-              <TextBlock Text="{TemplateBinding Value}"
-                         TextTrimming="{TemplateBinding TextTrimming}"
-                         TextWrapping="{TemplateBinding TextWrapping}"
-                         TextAlignment="{TemplateBinding TextAlignment}"
-                         VerticalAlignment="Center" />
-            </Border>
-          </ControlTemplate>
-        </Setter>
-
-        <Style Selector="^:editing">
-          <Setter Property="Padding" Value="4 2" />
-          <Setter Property="Template">
-            <ControlTemplate>
-              <Border x:Name="CellBorder"
-                      Background="{TemplateBinding Background}"
-                      BorderBrush="{TemplateBinding BorderBrush}"
-                      BorderThickness="{TemplateBinding BorderThickness}"
-                      CornerRadius="{TemplateBinding CornerRadius}"
-                      Padding="{TemplateBinding Padding}">
-                <TextBox Name="PART_Edit"
-                         Text="{TemplateBinding Value, Mode=TwoWay}" />
+              <!-- 悬停/选中/高亮 叠加层 -->
+              <Border x:Name="HoverBorder"
+                      x:CompileBindings="False"
+                      x:DataType="parser:ProtoDisplayNode"
+                      Classes.highlighted="{Binding IsHighlighted}"
+                      CornerRadius="6"
+                      MinHeight="47"
+                      Margin="20,2"
+                      BorderThickness="1"
+                      Opacity="0"
+                      IsHitTestVisible="False">
+                  <Border.Transitions>
+                      <Transitions>
+                          <DoubleTransition Property="Opacity" Duration="0:0:0.1" />
+                      </Transitions>
+                  </Border.Transitions>
               </Border>
-            </ControlTemplate>
-          </Setter>
-        </Style>
 
-        <Style Selector="^:editing /template/ TextBox#PART_Edit">
-          <Setter Property="Background" Value="Transparent" />
-          <Setter Property="MinHeight" Value="25" />
-          <Setter Property="Padding" Value="10,3,6,3" />
-          <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
+              <!-- 内容层 -->
+              <DockPanel Margin="20,2">
+                <!-- 展开/折叠按钮 -->
+                <Border DockPanel.Dock="Left"
+                        Margin="12,0,24,0"
+                        VerticalAlignment="Center"
+                        Width="18" Height="18">
+                  <ToggleButton Theme="{StaticResource TreeDataGridExpandCollapseChevron}"
+                                Focusable="False"
+                                IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}"
+                                IsVisible="{TemplateBinding ShowExpander}" />
+                </Border>
+                <!-- 节点内容 (由 DataTemplate 定义) -->
+                <Decorator Name="PART_Content" />
+              </DockPanel>
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
 
-        <Style Selector="^:editing /template/ TextBox#PART_Edit DataValidationErrors">
-          <Setter Property="Template" Value="{DynamicResource TooltipDataValidationContentTemplate}" />
-          <Setter Property="ErrorTemplate" Value="{DynamicResource TooltipDataValidationErrorTemplate}" />
-        </Style>
+    <!-- 基础背景层样式：根据是否有子节点设置背景色和边框 -->
+    <Style Selector="^ /template/ Border#ContentBorder" x:DataType="parser:ProtoDisplayNode">
+      <Setter Property="Background" Value="{Binding Converter={StaticResource ParentNodeBackgroundConverter}}" />
+      <Setter Property="BorderBrush" Value="{Binding Converter={StaticResource ParentNodeBorderBrushConverter}}" />
+    </Style>
 
-      </ControlTheme>
+    <!-- 鼠标悬停状态：显示 HoverBorder -->
+    <Style Selector="^:pointerover /template/ Border#HoverBorder">
+      <Setter Property="Opacity" Value="1" />
+      <Setter Property="Background" Value="{DynamicResource TreeDataGridSelectedCellBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource TreeDataGridSelectedCellBackgroundBrush}" />
+    </Style>
 
-      <ControlTheme x:Key="{x:Type TreeDataGridTemplateCell}" TargetType="TreeDataGridTemplateCell">
-        <Setter Property="Template">
-          <ControlTemplate>
-            <ContentPresenter Name="PART_ContentPresenter"
-                              Background="{TemplateBinding Background}"
-                              BorderBrush="{TemplateBinding BorderBrush}"
-                              BorderThickness="{TemplateBinding BorderThickness}"
-                              ContentTemplate="{TemplateBinding ContentTemplate}"
-                              CornerRadius="{TemplateBinding CornerRadius}"
-                              Content="{TemplateBinding Content}"
-                              Padding="{TemplateBinding Padding}" />
-          </ControlTemplate>
-        </Setter>
+    <!-- 选中状态：显示 HoverBorder -->
+    <Style Selector="^:selected /template/ Border#HoverBorder">
+      <Setter Property="Opacity" Value="1" />
+      <Setter Property="Background" Value="{DynamicResource TreeDataGridSelectedCellBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource TreeDataGridSelectedCellBackgroundBrush}" />
+    </Style>
 
-        <Style Selector="^:editing">
-          <Setter Property="Padding" Value="4 2" />
-          <Setter Property="Template">
-            <ControlTemplate>
-              <ContentPresenter Name="PART_EditingContentPresenter"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                ContentTemplate="{TemplateBinding EditingTemplate}"
-                                CornerRadius="{TemplateBinding CornerRadius}"
-                                Content="{TemplateBinding Content}"
-                                Padding="{TemplateBinding Padding}" />
-            </ControlTemplate>
-          </Setter>
-        </Style>
-      </ControlTheme>
+    <!-- 搜索高亮状态：显示绿色边框和阴影 -->
+    <Style Selector="^ /template/ Border#HoverBorder.highlighted">
+      <Setter Property="Opacity" Value="1" />
+      <Setter Property="Background" Value="#E8F5E9" />
+      <Setter Property="BorderBrush" Value="#4CAF50" />
+      <Setter Property="BoxShadow" Value="0 0 8 1 #AA4CAF50" />
+    </Style>
+
+    <!-- 选中且高亮状态：保持高亮样式，覆盖选中样式 -->
+    <Style Selector="^:selected /template/ Border#HoverBorder.highlighted">
+        <Setter Property="Background" Value="#E8F5E9" />
+        <Setter Property="BorderBrush" Value="#4CAF50" />
+    </Style>
+  </ControlTheme>
+
+  <!-- TreeDataGridTextCell 样式 -->
+  <ControlTheme x:Key="{x:Type TreeDataGridTextCell}" TargetType="TreeDataGridTextCell">
+    <Setter Property="Padding" Value="4 2" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="CellBorder"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                Padding="{TemplateBinding Padding}">
+          <TextBlock Text="{TemplateBinding Value}"
+                     TextTrimming="{TemplateBinding TextTrimming}"
+                     TextWrapping="{TemplateBinding TextWrapping}"
+                     TextAlignment="{TemplateBinding TextAlignment}"
+                     VerticalAlignment="Center" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:editing">
+      <Setter Property="Padding" Value="4 2" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border x:Name="CellBorder"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}">
+            <TextBox Name="PART_Edit"
+                     Text="{TemplateBinding Value, Mode=TwoWay}" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="^:editing /template/ TextBox#PART_Edit">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="MinHeight" Value="25" />
+      <Setter Property="Padding" Value="10,3,6,3" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="^:editing /template/ TextBox#PART_Edit DataValidationErrors">
+      <Setter Property="Template" Value="{DynamicResource TooltipDataValidationContentTemplate}" />
+      <Setter Property="ErrorTemplate" Value="{DynamicResource TooltipDataValidationErrorTemplate}" />
+    </Style>
+
+  </ControlTheme>
+
+  <!-- TreeDataGridTemplateCell 样式 -->
+  <ControlTheme x:Key="{x:Type TreeDataGridTemplateCell}" TargetType="TreeDataGridTemplateCell">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter Name="PART_ContentPresenter"
+                          Background="{TemplateBinding Background}"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          CornerRadius="{TemplateBinding CornerRadius}"
+                          Content="{TemplateBinding Content}"
+                          Padding="{TemplateBinding Padding}" />
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:editing">
+      <Setter Property="Padding" Value="4 2" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ContentPresenter Name="PART_EditingContentPresenter"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            ContentTemplate="{TemplateBinding EditingTemplate}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Content="{TemplateBinding Content}"
+                            Padding="{TemplateBinding Padding}" />
+        </ControlTemplate>
+      </Setter>
+    </Style>
+  </ControlTheme>
     </ResourceDictionary>
   </Styles.Resources>
 
+  <!-- 单元格通用样式 -->
   <Style Selector=":is(TreeDataGridCell)">
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="MinHeight" Value="25" />
   </Style>
 
+  <!-- 单元格选中样式 -->
   <Style Selector=":is(TreeDataGridCell):selected">
     <Setter Property="Background" Value="{DynamicResource TreeDataGridSelectedCellBackgroundBrush}" />
   </Style>
 
-  <Style Selector="TreeDataGridRow:selected TreeDataGridExpanderCell /template/ Border#HoverBorder">
+  <!-- 
+    行选中样式 (关键修复)
+    当行被选中时，强制设置 HoverBorder 的背景色和不透明度
+  -->
+  <Style Selector="TreeDataGridRow:selected Border#HoverBorder">
     <Setter Property="Opacity" Value="1" />
+    <Setter Property="Background" Value="#DCE0FE" />
+  </Style>
+
+  <!-- 从 App.axaml 移动过来的样式 -->
+  <Style Selector="Border.highlighted Border.field-badge">
+    <Setter Property="Background" Value="Transparent"/>
   </Style>
 </Styles>

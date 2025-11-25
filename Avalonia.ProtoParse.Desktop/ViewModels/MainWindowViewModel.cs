@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -19,8 +20,16 @@ public class MainWindowViewModel : ViewModelBase
 {
     private HierarchicalTreeDataGridSource<ProtoDisplayNode> _source;
     private readonly ObservableCollection<ProtoDisplayNode> _rootNodes = [];
+    private List<ProtoDisplayNode> _allNodes = [];
 
     public bool IsNodeSelected => SelectedNode != null;
+
+    private string _searchText;
+    public string SearchText
+    {
+        get => _searchText;
+        set => this.RaiseAndSetIfChanged(ref _searchText, value);
+    }
 
     private bool _isBusy;
     public bool IsBusy
@@ -82,6 +91,93 @@ public class MainWindowViewModel : ViewModelBase
         OpenNewWindowCommand = ReactiveCommand.Create(OpenNewWindow);
 
         Source = CreateSource(_rootNodes);
+        
+        this.WhenAnyValue(x => x.SearchText)
+            .Throttle(TimeSpan.FromMilliseconds(300))
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Subscribe(PerformSearch);
+    }
+
+    private void PerformSearch(string? text)
+    {
+        if (_allNodes.Count == 0) return;
+
+        _rootNodes.Clear();
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            foreach (var node in _allNodes) _rootNodes.Add(node);
+            return;
+        }
+
+        var searchText = text.Trim();
+        var filtered = FilterNodes(_allNodes, searchText);
+        foreach (var node in filtered) _rootNodes.Add(node);
+        
+        if (filtered.Count > 0)
+        {
+             ExpandAll();
+        }
+
+        (Source?.Selection as ITreeDataGridRowSelectionModel<ProtoDisplayNode>)?.Clear();
+    }
+
+    private List<ProtoDisplayNode> FilterNodes(IEnumerable<ProtoDisplayNode> nodes, string searchText)
+    {
+        var result = new List<ProtoDisplayNode>();
+        foreach (var node in nodes)
+        {
+            var matches = NodeMatches(node, searchText);
+            var filteredChildren = FilterNodes(node.Children, searchText);
+
+            if (matches || filteredChildren.Count > 0)
+            {
+                var newNode = node with 
+                { 
+                    Children = filteredChildren,
+                    IsHighlighted = matches 
+                };
+
+                result.Add(newNode);
+            }
+        }
+        return result;
+    }
+
+    private bool NodeMatches(ProtoDisplayNode node, string searchText)
+    {
+        if ((node.Label?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (node.Summary?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (node.FieldDisplay?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false))
+        {
+            return true;
+        }
+
+        // Fallback: Check RawValue
+        // Skip if node has children, as RawValue will contain children's content
+        if (node.Children.Count > 0) return false;
+
+        if (node.Node != null && !node.Node.RawValue.IsEmpty)
+        {
+            try
+            {
+                // 1. Try standard UTF8
+                var text = System.Text.Encoding.UTF8.GetString(node.Node.RawValue.Span);
+                if (text.Contains(searchText, StringComparison.OrdinalIgnoreCase)) return true;
+
+                // 2. Try extracting printable ASCII (like 'strings' command)
+                // This helps when binary tags mess up UTF8 decoding
+                var ascii = new string(node.Node.RawValue.Span.ToArray()
+                    .Where(b => b >= 32 && b <= 126)
+                    .Select(b => (char)b).ToArray());
+                if (ascii.Contains(searchText, StringComparison.OrdinalIgnoreCase)) return true;
+            }
+            catch
+            {
+                // Ignore errors
+            }
+        }
+
+        return false;
     }
 
     private HierarchicalTreeDataGridSource<ProtoDisplayNode> CreateSource(IEnumerable<ProtoDisplayNode> items)
@@ -189,10 +285,8 @@ public class MainWindowViewModel : ViewModelBase
             });
 
             StatusText = $"解析成功, 共 {result.Count} 个一级字段";
-            foreach (var node in result.Nodes)
-            {
-                _rootNodes.Add(node);
-            }
+            _allNodes = result.Nodes.ToList();
+            PerformSearch(SearchText);
         }
         catch (Exception ex)
         {
@@ -211,6 +305,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         InputText = string.Empty;
         _rootNodes.Clear();
+        _allNodes.Clear();
     }
 
     private void OpenNewWindow()
