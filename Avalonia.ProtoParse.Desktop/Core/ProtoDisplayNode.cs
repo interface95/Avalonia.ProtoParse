@@ -23,7 +23,7 @@ public sealed record ProtoDisplayNode(
     public string FieldDisplay => FormatFieldDisplay();
     public string WireTypeDisplay => WireType.ToString();
     public bool IsArrayGroup => Node is null && Children.Count > 0;
-    public string? Utf8Preview => Node is not null ? TryGetUtf8(Node.RawValue.Span) : null;
+    public string? Utf8Preview => GetTextPreview();
 
     public ProtoDisplayNode(ProtoNode node, string path)
         : this(CreateLabel(node), node, path,
@@ -34,6 +34,24 @@ public sealed record ProtoDisplayNode(
             CreateRawPreview(node),
             false)
     {
+    }
+
+    private string? GetTextPreview()
+    {
+        if (Node is null) return null;
+
+        return WireType switch
+        {
+            ProtoWireType.LengthDelimited => TryGetUtf8(Node.RawValue.Span),
+            ProtoWireType.Varint => VarintToValue(Node.RawValue.Span).ToString(),
+            ProtoWireType.Fixed32 => Node.RawValue.Length >= 4 
+                ? BitConverter.ToUInt32(Node.RawValue.Span).ToString() 
+                : null,
+            ProtoWireType.Fixed64 => Node.RawValue.Length >= 8 
+                ? BitConverter.ToUInt64(Node.RawValue.Span).ToString() 
+                : null,
+            _ => null
+        };
     }
 
     public static IReadOnlyList<ProtoDisplayNode> FromNodes(IReadOnlyList<ProtoNode> nodes)

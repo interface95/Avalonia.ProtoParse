@@ -310,10 +310,11 @@ public partial class MainWindowViewModel : ViewModelBase
         foreach (var node in filtered)
             _rootNodes.Add(node);
 
-        if (filtered.Count > 0)
+        var matchCount = CountTotalMatches(filtered);
+        if (matchCount > 0)
         {
             OnExpandAll();
-            await NotificationHelper.ShowInfoAsync($"搜索完成，找到 {filtered.Count} 个匹配项");
+            await NotificationHelper.ShowInfoAsync($"搜索完成，找到 {matchCount} 个匹配项");
         }
         else
         {
@@ -321,6 +322,17 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         (Source?.Selection as ITreeDataGridRowSelectionModel<ProtoDisplayNode>)?.Clear();
+    }
+
+    private int CountTotalMatches(IEnumerable<ProtoDisplayNode> nodes)
+    {
+        var count = 0;
+        foreach (var node in nodes)
+        {
+            if (node.IsHighlighted) count++;
+            count += CountTotalMatches(node.Children);
+        }
+        return count;
     }
 
     private List<ProtoDisplayNode> FilterNodes(IEnumerable<ProtoDisplayNode> nodes, SearchContext context)
