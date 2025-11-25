@@ -35,19 +35,19 @@
                     <TextBlock Text="原始数据" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0" />
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8"
                                 Margin="0,0,5,0">
-                        <Button Classes="Primary" Width="44" Height="44" Padding="0" CornerRadius="4"
+                        <Button Command="{Binding ParseCommand}" Classes="Primary" Padding="8,4" CornerRadius="4"
                                 HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                             <TextBlock Text="解&#x0a;析" TextAlignment="Center" FontSize="13" FontWeight="Bold" />
                         </Button>
-                        <Button Width="44" Height="44" Padding="0" CornerRadius="4" HorizontalContentAlignment="Center"
+                        <Button Command="{Binding ExampleCommand}" Padding="8,4" CornerRadius="4" HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center">
                             <TextBlock Text="示&#x0a;例" TextAlignment="Center" FontSize="13" />
                         </Button>
-                        <Button Command="{Binding ClearCommand}" Width="44" Height="44" Padding="0" CornerRadius="4"
+                        <Button Command="{Binding ClearCommand}" Padding="8,4" CornerRadius="4"
                                 HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                             <TextBlock Text="清&#x0a;空" TextAlignment="Center" FontSize="13" />
                         </Button>
-                        <Button Classes="Tertiary" Width="44" Height="44" Padding="0" CornerRadius="4"
+                        <Button Classes="Tertiary" Padding="8,4" CornerRadius="4"
                                 HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                             <TextBlock Text="导&#x0a;入" TextAlignment="Center" FontSize="13" />
                         </Button>

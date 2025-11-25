@@ -61,6 +61,7 @@
                 </ScrollViewer>
                 <ScrollViewer Name="PART_ScrollViewer"
                               HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
                               BringIntoViewOnFocusChange="{TemplateBinding (ScrollViewer.BringIntoViewOnFocusChange)}">
                   <TreeDataGridRowsPresenter Name="PART_RowsPresenter"
                                              Columns="{TemplateBinding Columns}"
@@ -274,13 +275,13 @@
                     <Border DockPanel.Dock="Left"
                             Margin="12,0,24,0"
                             VerticalAlignment="Center"
-                            Width="17" Height="17">
+                            Width="18" Height="18">
                       <ToggleButton Theme="{StaticResource TreeDataGridExpandCollapseChevron}"
                                     Focusable="False"
                                     IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}"
                                     IsVisible="{TemplateBinding ShowExpander}" />
                     </Border>
-                    <Decorator Name="PART_Content" VerticalAlignment="Center"/>
+                    <Decorator Name="PART_Content" />
                   </DockPanel>
               </Panel>
             </Border>
