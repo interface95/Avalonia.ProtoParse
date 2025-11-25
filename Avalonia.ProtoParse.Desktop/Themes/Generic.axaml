@@ -42,13 +42,13 @@
                            MinWidth="28" 
                            Height="25" 
                            CornerRadius="12" 
-                           Background="#E6E8FA" 
+                           Background="{DynamicResource BadgeBackground}" 
                            Margin="0,0,10,0">
                        <TextBlock Text="{Binding FieldDisplay}"
                                   HorizontalAlignment="Center" 
                                   VerticalAlignment="Center" 
                                   Padding="4,0"
-                                  Foreground="Black"/>
+                                  Foreground="{DynamicResource BadgeForeground}"/>
                    </Border>
                    <TextBlock Grid.Column="1" 
                               Text="{Binding WireTypeDisplay}" 
@@ -249,8 +249,8 @@
     <Setter Property="Height" Value="17" />
     <Setter Property="Template">
       <ControlTemplate>
-        <Border Background="#E6F0E6"
-                BorderBrush="#8FBC8F"
+        <Border Background="{DynamicResource ExpanderBackground}"
+                BorderBrush="{DynamicResource ExpanderBorder}"
                 BorderThickness="1"
                 CornerRadius="4"
                 Width="{TemplateBinding Width}"
@@ -262,7 +262,7 @@
                    VerticalAlignment="Center">
             <Path x:Name="ChevronPath"
                   Data="{StaticResource TreeDataGridItemCollapsedChevronPathData}"
-                  Fill="#2F4F4F"
+                  Fill="{DynamicResource ExpanderForeground}"
                   Stretch="Uniform" />
           </Viewbox>
         </Border>
@@ -358,15 +358,15 @@
     <!-- 搜索高亮状态：显示绿色边框和阴影 -->
     <Style Selector="^ /template/ Border#HoverBorder.highlighted">
       <Setter Property="Opacity" Value="1" />
-      <Setter Property="Background" Value="#E8F5E9" />
-      <Setter Property="BorderBrush" Value="#4CAF50" />
-      <Setter Property="BoxShadow" Value="0 0 8 1 #AA4CAF50" />
+      <Setter Property="Background" Value="{DynamicResource SearchHighlightBackground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SearchHighlightBorder}" />
+      <Setter Property="BoxShadow" Value="{DynamicResource SearchHighlightShadow}" />
     </Style>
 
     <!-- 选中且高亮状态：保持高亮样式，覆盖选中样式 -->
     <Style Selector="^:selected /template/ Border#HoverBorder.highlighted">
-        <Setter Property="Background" Value="#E8F5E9" />
-        <Setter Property="BorderBrush" Value="#4CAF50" />
+        <Setter Property="Background" Value="{DynamicResource SearchHighlightBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SearchHighlightBorder}" />
     </Style>
   </ControlTheme>
 
@@ -472,7 +472,7 @@
   -->
   <Style Selector="TreeDataGridRow:selected Border#HoverBorder">
     <Setter Property="Opacity" Value="1" />
-    <Setter Property="Background" Value="#DCE0FE" />
+    <Setter Property="Background" Value="{DynamicResource TreeRowSelectedBackground}" />
   </Style>
 
   <!-- 从 App.axaml 移动过来的样式 -->

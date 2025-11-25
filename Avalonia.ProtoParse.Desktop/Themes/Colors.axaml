@@ -1,0 +1,72 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <!-- General -->
+            <SolidColorBrush x:Key="AppBackground" Color="White" />
+            <SolidColorBrush x:Key="TextPrimary" Color="#333333" />
+            <SolidColorBrush x:Key="TextSecondary" Color="#666666" />
+            <SolidColorBrush x:Key="TextTertiary" Color="#888888" />
+            <SolidColorBrush x:Key="TextStatus" Color="#6B7280" />
+            <SolidColorBrush x:Key="BorderBrush" Color="#E1E3E5" />
+            
+            <!-- Sidebar / Panels -->
+            <SolidColorBrush x:Key="SidebarBackground" Color="White" />
+            <SolidColorBrush x:Key="FieldLabelBackground" Color="#F7F8FA" />
+            
+            <!-- Badges -->
+            <SolidColorBrush x:Key="BadgeBackground" Color="#E6E8FA" />
+            <SolidColorBrush x:Key="BadgeForeground" Color="Black" />
+            <SolidColorBrush x:Key="ArrayBadgeBackground" Color="#E6E8FA" />
+            <SolidColorBrush x:Key="ArrayBadgeForeground" Color="#5B5FC7" />
+            
+            <!-- TreeDataGrid -->
+            <SolidColorBrush x:Key="TreeRowSelectedBackground" Color="#DCE0FE" />
+            <SolidColorBrush x:Key="TreeRowHoverBackground" Color="#F0F0F0" />
+            
+            <!-- Search Highlight -->
+            <SolidColorBrush x:Key="SearchHighlightBackground" Color="#E8F5E9" />
+            <SolidColorBrush x:Key="SearchHighlightBorder" Color="#4CAF50" />
+            <BoxShadows x:Key="SearchHighlightShadow">0 0 8 1 #AA4CAF50</BoxShadows>
+            
+            <!-- Expand/Collapse Button -->
+            <SolidColorBrush x:Key="ExpanderBackground" Color="#E6F0E6" />
+            <SolidColorBrush x:Key="ExpanderBorder" Color="#8FBC8F" />
+            <SolidColorBrush x:Key="ExpanderForeground" Color="#2F4F4F" />
+        </ResourceDictionary>
+        
+        <ResourceDictionary x:Key="Dark">
+            <!-- General -->
+            <SolidColorBrush x:Key="AppBackground" Color="#1E1E1E" />
+            <SolidColorBrush x:Key="TextPrimary" Color="#E0E0E0" />
+            <SolidColorBrush x:Key="TextSecondary" Color="#AAAAAA" />
+            <SolidColorBrush x:Key="TextTertiary" Color="#666666" />
+            <SolidColorBrush x:Key="TextStatus" Color="#9CA3AF" />
+            <SolidColorBrush x:Key="BorderBrush" Color="#333333" />
+            
+            <!-- Sidebar / Panels -->
+            <SolidColorBrush x:Key="SidebarBackground" Color="#252526" />
+            <SolidColorBrush x:Key="FieldLabelBackground" Color="#2D2D30" />
+            
+            <!-- Badges -->
+            <SolidColorBrush x:Key="BadgeBackground" Color="#3E3E42" />
+            <SolidColorBrush x:Key="BadgeForeground" Color="#E0E0E0" />
+            <SolidColorBrush x:Key="ArrayBadgeBackground" Color="#3E3E42" />
+            <SolidColorBrush x:Key="ArrayBadgeForeground" Color="#8585FF" />
+            
+            <!-- TreeDataGrid -->
+            <SolidColorBrush x:Key="TreeRowSelectedBackground" Color="#264F78" />
+            <SolidColorBrush x:Key="TreeRowHoverBackground" Color="#2A2D2E" />
+            
+            <!-- Search Highlight -->
+            <SolidColorBrush x:Key="SearchHighlightBackground" Color="#1E3A2F" />
+            <SolidColorBrush x:Key="SearchHighlightBorder" Color="#4CAF50" />
+            <BoxShadows x:Key="SearchHighlightShadow">0 0 8 1 #AA4CAF50</BoxShadows>
+            
+            <!-- Expand/Collapse Button -->
+            <SolidColorBrush x:Key="ExpanderBackground" Color="#2D2D30" />
+            <SolidColorBrush x:Key="ExpanderBorder" Color="#555555" />
+            <SolidColorBrush x:Key="ExpanderForeground" Color="#E0E0E0" />
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>
