@@ -86,10 +86,23 @@ jobs:
       with:
         path: artifacts
 
+    - name: Resolve Release Token
+      id: release_token
+      shell: bash
+      env:
+        CUSTOM_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        DEFAULT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        if [ -n "$CUSTOM_TOKEN" ]; then
+          echo "value=$CUSTOM_TOKEN" >> "$GITHUB_OUTPUT"
+        else
+          echo "value=$DEFAULT_TOKEN" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ steps.release_token.outputs.value }}
         files: artifacts/**/*.zip
         draft: false
         prerelease: false
