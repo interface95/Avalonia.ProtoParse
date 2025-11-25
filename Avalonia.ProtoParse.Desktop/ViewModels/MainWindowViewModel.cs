@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.IO;
 using System.IO.Compression;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
-using Avalonia.Layout;
 using Avalonia.ProtoParse.Desktop.Views;
 using Protobuf.Decode.Parser;
 using ReactiveUI;
@@ -79,6 +76,7 @@ public class MainWindowViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> ExpandAllCommand { get; }
     public ReactiveCommand<Unit, Unit> CollapseAllCommand { get; }
     public ReactiveCommand<Unit, Unit> OpenNewWindowCommand { get; }
+    public ReactiveCommand<Unit, Unit> SearchCommand { get; }
 
     public MainWindowViewModel()
     {
@@ -88,13 +86,9 @@ public class MainWindowViewModel : ViewModelBase
         ExpandAllCommand = ReactiveCommand.Create(ExpandAll);
         CollapseAllCommand = ReactiveCommand.Create(CollapseAll);
         OpenNewWindowCommand = ReactiveCommand.Create(OpenNewWindow);
+        SearchCommand = ReactiveCommand.Create(() => PerformSearch(SearchText));
 
         Source = CreateSource(_rootNodes);
-
-        this.WhenAnyValue(x => x.SearchText)
-            .Throttle(TimeSpan.FromMilliseconds(300))
-            .ObserveOn(RxApp.MainThreadScheduler)
-            .Subscribe(PerformSearch);
     }
 
     private void PerformSearch(string? text)
@@ -116,6 +110,11 @@ public class MainWindowViewModel : ViewModelBase
         if (filtered.Count > 0)
         {
             ExpandAll();
+            NotificationHelper.ShowInfoAsync($"搜索完成，找到 {filtered.Count} 个匹配项");
+        }
+        else
+        {
+            NotificationHelper.ShowInfoAsync("未找到匹配项");
         }
 
         (Source?.Selection as ITreeDataGridRowSelectionModel<ProtoDisplayNode>)?.Clear();
@@ -213,8 +212,8 @@ public class MainWindowViewModel : ViewModelBase
     private void ExpandNodeRecursive(ProtoDisplayNode node, List<int> path)
     {
         if (!node.Children.Any()) return;
-        _source?.Expand(new IndexPath(path));
-        for (int i = 0; i < node.Children.Count; i++)
+        _source.Expand(new IndexPath(path));
+        for (var i = 0; i < node.Children.Count; i++)
         {
             var newPath = new List<int>(path) { i };
             ExpandNodeRecursive(node.Children[i], newPath);
@@ -243,46 +242,55 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private async Task Parse()
+    private Task Parse()
     {
-        if (IsBusy) return;
+        if (IsBusy) 
+            return Task.CompletedTask;
+        
         IsBusy = true;
         LoadingMessage = "解析中...";
         _rootNodes.Clear();
         StatusText = "解析中...";
 
-        try
+        return Task.Run(async () =>
         {
-            if (string.IsNullOrWhiteSpace(InputText))
+            try
             {
-                StatusText = "就绪";
-                return;
-            }
+                if (string.IsNullOrWhiteSpace(InputText))
+                {
+                    StatusText = "就绪";
+                    return;
+                }
 
-            var input = InputText;
-            var result = await Task.Run(() =>
-            {
+                var input = InputText;
+
                 var data = DecodeAndDecompress(input);
                 var nodes = ProtoParser.Parse(data).ToList();
                 var displayNodes = ProtoDisplayNode.FromNodes(nodes);
-                return (Nodes: displayNodes, Count: nodes.Count);
-            });
+                StatusText = $"解析成功, 共 {nodes.Count} 个一级字段";
+                _allNodes = displayNodes.ToList();
 
-            StatusText = $"解析成功, 共 {result.Count} 个一级字段";
-            _allNodes = result.Nodes.ToList();
-            PerformSearch(SearchText);
-        }
-        catch (Exception ex)
-        {
-            StatusText = $"解析失败: {ex.Message}";
-            var errorNode = ProtoDisplayNode.CreateError($"Parse error: {ex.Message}");
-            _rootNodes.Clear();
-            _rootNodes.Add(errorNode);
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+                PerformSearch(SearchText);
+
+                await NotificationHelper.ShowSuccessAsync($"解析成功，共 {nodes.Count} 个一级字段");
+            }
+            catch (Exception ex)
+            {
+                StatusText = $"解析失败: {ex.Message}";
+                var errorNode = ProtoDisplayNode.CreateError($"Parse error: {ex.Message}");
+                await Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    _rootNodes.Clear();
+                    _rootNodes.Add(errorNode);
+                });
+
+                await NotificationHelper.ShowErrorAsync($"解析失败: {ex.Message}");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        });
     }
 
     private static byte[] DecodeAndDecompress(string input)
@@ -326,9 +334,9 @@ public class MainWindowViewModel : ViewModelBase
         }
 
         // 3. Try Gzip Decompression (regardless of source, if magic header matches)
-        if (data.Length <= 2 || data[0] != 0x1F || data[1] != 0x8B) 
+        if (data.Length <= 2 || data[0] != 0x1F || data[1] != 0x8B)
             return data;
-        
+
         try
         {
             using var ms = new MemoryStream(data);

@@ -146,7 +146,11 @@
 
                         <!-- 搜索框 -->
                         <TextBox Grid.Column="3" Watermark="搜索字符串" Width="200" CornerRadius="4" FontSize="12"
-                                 VerticalAlignment="Center" Text="{Binding SearchText}" />
+                                 VerticalAlignment="Center" Text="{Binding SearchText}">
+                            <TextBox.KeyBindings>
+                                <KeyBinding Gesture="Enter" Command="{Binding SearchCommand}" />
+                            </TextBox.KeyBindings>
+                        </TextBox>
                     </Grid>
                 </Border>
 
