@@ -101,9 +101,12 @@ public partial class MainWindowViewModel : ViewModelBase
         var items = Source?.Items.ToList();
         if (items == null) return;
 
+        var pathBuffer = new List<int>();
         for (var i = 0; i < items.Count; i++)
         {
-            ExpandNodeRecursive(items[i], [i]);
+            pathBuffer.Add(i);
+            ExpandNodeRecursive(items[i], pathBuffer);
+            pathBuffer.RemoveAt(pathBuffer.Count - 1);
         }
     }
 
@@ -113,8 +116,9 @@ public partial class MainWindowViewModel : ViewModelBase
         Source?.Expand(new IndexPath(path));
         for (var i = 0; i < node.Children.Count; i++)
         {
-            var newPath = new List<int>(path) { i };
-            ExpandNodeRecursive(node.Children[i], newPath);
+            path.Add(i);
+            ExpandNodeRecursive(node.Children[i], path);
+            path.RemoveAt(path.Count - 1);
         }
     }
 
@@ -124,10 +128,15 @@ public partial class MainWindowViewModel : ViewModelBase
         var items = Source?.Items.ToList();
         if (items == null) return;
 
+        var pathBuffer = new List<int>();
         for (var i = 0; i < items.Count; i++)
         {
-            Source?.Collapse(new IndexPath(i));
-            CollapseNodeRecursive(items[i], [i]);
+            pathBuffer.Add(i);
+            // 先收缩当前节点
+            Source?.Collapse(new IndexPath(pathBuffer));
+            // 再递归收缩子节点
+            CollapseNodeRecursive(items[i], pathBuffer);
+            pathBuffer.RemoveAt(pathBuffer.Count - 1);
         }
     }
 
@@ -137,8 +146,9 @@ public partial class MainWindowViewModel : ViewModelBase
         Source?.Collapse(new IndexPath(path));
         for (var i = 0; i < node.Children.Count; i++)
         {
-            var newPath = new List<int>(path) { i };
-            CollapseNodeRecursive(node.Children[i], newPath);
+            path.Add(i);
+            CollapseNodeRecursive(node.Children[i], path);
+            path.RemoveAt(path.Count - 1);
         }
     }
 
@@ -215,7 +225,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             if (updateInputText)
             {
-                InputText = Convert.ToHexString(data);
+                InputText = FormatHex(data);
             }
 
             _rootNodes.Clear();
@@ -227,6 +237,43 @@ public partial class MainWindowViewModel : ViewModelBase
         await NotificationHelper.ShowSuccessAsync($"解析成功，共 {nodes.Count} 个一级字段");
 
         IsBusy = false;
+    }
+
+    private static string FormatHex(byte[] data)
+    {
+        if (data.Length == 0) return string.Empty;
+        
+        // 限制最大显示大小，防止界面卡死 (例如限制为 5MB 数据 -> 10MB 文本)
+        // 如果用户一定要看大文件，建议使用专门的 Hex 编辑器控件
+        const int MaxBytesToDisplay = 5 * 1024 * 1024;
+        
+        var displayData = data;
+        var isTruncated = false;
+        
+        if (data.Length > MaxBytesToDisplay)
+        {
+            displayData = data[..MaxBytesToDisplay];
+            isTruncated = true;
+        }
+
+        const int BytesPerLine = 32;
+        var sb = new StringBuilder(displayData.Length * 2 + (displayData.Length / BytesPerLine) * 2);
+        
+        for (int i = 0; i < displayData.Length; i += BytesPerLine)
+        {
+            if (i > 0) sb.AppendLine();
+            int count = Math.Min(BytesPerLine, displayData.Length - i);
+            sb.Append(Convert.ToHexString(displayData, i, count));
+        }
+
+        if (isTruncated)
+        {
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.Append($"// ... (数据过大，仅显示前 {MaxBytesToDisplay/1024} KB，共 {data.Length/1024} KB)");
+        }
+
+        return sb.ToString();
     }
 
     private async Task HandleParseErrorAsync(Exception ex)
