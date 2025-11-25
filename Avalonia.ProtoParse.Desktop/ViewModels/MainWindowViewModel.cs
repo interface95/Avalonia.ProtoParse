@@ -10,12 +10,12 @@ using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
 using Avalonia.Layout;
 using Avalonia.Platform.Storage;
+using Avalonia.ProtoParse.Desktop.Core;
 using Avalonia.ProtoParse.Desktop.Helpers;
 using Avalonia.ProtoParse.Desktop.Views;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Protobuf.Decode.Parser;
 
 namespace Avalonia.ProtoParse.Desktop.ViewModels;
 

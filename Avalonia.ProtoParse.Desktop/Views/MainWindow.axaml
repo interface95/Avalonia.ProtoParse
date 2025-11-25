@@ -5,7 +5,7 @@
               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
               xmlns:ae="using:AvaloniaEdit"
               xmlns:u="https://irihi.tech/ursa"
-              xmlns:parser="clr-namespace:Protobuf.Decode.Parser"
+              xmlns:core="clr-namespace:Avalonia.ProtoParse.Desktop.Core"
               mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
               x:Class="Avalonia.ProtoParse.Desktop.Views.MainWindow"
               x:DataType="vm:MainWindowViewModel"
@@ -185,7 +185,7 @@
                             <!-- 选中节点时的详细信息 -->
                             <ContentControl Content="{Binding SelectedNode}" IsVisible="{Binding IsNodeSelected}">
                                 <ContentControl.ContentTemplate>
-                                    <DataTemplate DataType="parser:ProtoDisplayNode">
+                                    <DataTemplate DataType="core:ProtoDisplayNode">
                                         <Grid RowDefinitions="Auto, Auto, Auto, Auto, *" ColumnDefinitions="100, *">
                                             <!-- PATH 字段 -->
                                             <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource FieldLabelBackground}"

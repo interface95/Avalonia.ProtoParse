@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Protobuf.Decode.Parser;
+namespace Avalonia.ProtoParse.Desktop.Core;
 
 /// <summary>
 /// Represents a single Protobuf field node in the parsed structure

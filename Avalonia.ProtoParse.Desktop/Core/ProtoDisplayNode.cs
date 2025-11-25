@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
-namespace Protobuf.Decode.Parser;
+namespace Avalonia.ProtoParse.Desktop.Core;
 
 public sealed record ProtoDisplayNode(
     string Label,

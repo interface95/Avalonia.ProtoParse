@@ -4,7 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
-using Protobuf.Decode.Parser;
+using Avalonia.ProtoParse.Desktop.Core;
 
 namespace Avalonia.ProtoParse.Desktop.Converters;
 

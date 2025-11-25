@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Protobuf.Decode.Parser;
+namespace Avalonia.ProtoParse.Desktop.Core;
 
 /// <summary>
 /// Main parser for Protobuf binary data

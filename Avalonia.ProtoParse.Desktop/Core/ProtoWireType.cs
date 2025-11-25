@@ -1,4 +1,4 @@
-namespace Protobuf.Decode.Parser;
+namespace Avalonia.ProtoParse.Desktop.Core;
 
 /// <summary>
 /// Protobuf wire type enumeration
