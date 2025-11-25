@@ -21,6 +21,6 @@
         <u-semi:SemiTheme Locale="zh-CN"/>
         <semi:AvaloniaEditSemiTheme />
         <semi:TreeDataGridSemiTheme />
-        <StyleInclude Source="avares://Avalonia.ProtoParse.Desktop/Themes/Fluent.axaml"/>
+        <StyleInclude Source="avares://Avalonia.ProtoParse.Desktop/Themes/TreeDataGrid.axaml" />
     </Application.Styles>
 </Application>
