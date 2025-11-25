@@ -1,0 +1,20 @@
+<linker>
+  <!-- Preserve everything in the application assembly -->
+  <assembly fullname="Avalonia.ProtoParse.Desktop" preserve="all" />
+  
+  <!-- Preserve ReactiveUI (essential for bindings) -->
+  <assembly fullname="ReactiveUI" preserve="all" />
+  
+  <!-- Ursa UI controls -->
+  <assembly fullname="Ursa" preserve="all" />
+  <assembly fullname="Ursa.Themes.Semi" preserve="all" />
+  <assembly fullname="Irihi.Ursa.Themes.Semi" preserve="all" />
+
+  <!-- AvaloniaEdit -->
+  <assembly fullname="Avalonia.AvaloniaEdit" preserve="all" />
+
+  <!-- Semi Theme -->
+  <assembly fullname="Semi.Avalonia" preserve="all" />
+  <assembly fullname="Semi.Avalonia.AvaloniaEdit" preserve="all" />
+  <assembly fullname="Semi.Avalonia.TreeDataGrid" preserve="all" />
+</linker>
