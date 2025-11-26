@@ -1,0 +1,113 @@
+name: Release macOS ARM64 AOT
+
+on:
+  push:
+    tags:
+      - 'mac*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos-arm64:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET 10
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore Avalonia.ProtoParse.Desktop/Avalonia.ProtoParse.Desktop.csproj
+
+    - name: Build and Publish macOS ARM64 AOT
+      run: |
+        dotnet publish Avalonia.ProtoParse.Desktop/Avalonia.ProtoParse.Desktop.csproj \
+          -r osx-arm64 \
+          -c Release \
+          --self-contained true \
+          -p:PublishAot=true \
+          -o ./publish/osx-arm64
+
+    - name: Create macOS App Bundle
+      run: |
+        APP_NAME="Avalonia.ProtoParse"
+        BUNDLE_NAME="${APP_NAME}.app"
+        
+        # Create app bundle structure
+        mkdir -p "${BUNDLE_NAME}/Contents/MacOS"
+        mkdir -p "${BUNDLE_NAME}/Contents/Resources"
+        
+        # Copy published files to MacOS directory
+        cp -r ./publish/osx-arm64/* "${BUNDLE_NAME}/Contents/MacOS/"
+        
+        # Copy icon file to Resources directory
+        cp ./Avalonia.ProtoParse.Desktop/Assets/Goescat-Macaron-Gimp.icns "${BUNDLE_NAME}/Contents/Resources/AppIcon.icns"
+        
+        # Create Info.plist
+        cat > "${BUNDLE_NAME}/Contents/Info.plist" << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>CFBundleExecutable</key>
+            <string>Avalonia.ProtoParse.Desktop</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.avalonia.protoparse</string>
+            <key>CFBundleName</key>
+            <string>Avalonia ProtoParse</string>
+            <key>CFBundleDisplayName</key>
+            <string>Avalonia ProtoParse</string>
+            <key>CFBundleVersion</key>
+            <string>1.0.0</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0.0</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleIconFile</key>
+            <string>AppIcon</string>
+            <key>LSMinimumSystemVersion</key>
+            <string>10.15</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+        </dict>
+        </plist>
+        EOF
+        
+        # Make executable executable
+        chmod +x "${BUNDLE_NAME}/Contents/MacOS/Avalonia.ProtoParse.Desktop"
+        
+        # Remove debug symbol files (dSYM directories)
+        find "${BUNDLE_NAME}/Contents/MacOS" -name "*.dSYM" -type d -exec rm -rf {} + 2>/dev/null || true
+        
+        # Sign with ad-hoc signature (required for macOS to run the app)
+        codesign --force --deep --sign - "${BUNDLE_NAME}"
+        
+        echo "App bundle created successfully"
+        ls -la "${BUNDLE_NAME}/Contents/MacOS"
+        ls -la "${BUNDLE_NAME}/Contents/Resources"
+
+    - name: Create Archive
+      run: |
+        tar -czf Avalonia.ProtoParse-osx-arm64.tar.gz Avalonia.ProtoParse.app
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-arm64-release
+        path: Avalonia.ProtoParse-osx-arm64.tar.gz
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v2
+      with:
+        files: Avalonia.ProtoParse-osx-arm64.tar.gz
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
