@@ -196,7 +196,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task OnImportFileAsync()
     {
-        if (Provider is null) return;
+        if (Provider is null)
+            return;
 
         var files = await Provider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
