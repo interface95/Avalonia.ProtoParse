@@ -36,6 +36,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private string _searchText = "";
 
+    /// <summary>
+    /// 当搜索框清空时自动恢复完整结果
+    /// </summary>
     partial void OnSearchTextChanged(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -56,6 +59,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     #endregion
 
+    /// <summary>
+    /// 初始化视图模型并配置树形数据源
+    /// </summary>
     public MainWindowViewModel()
     {
         Source = CreateSource(_rootNodes);
@@ -63,6 +69,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     #region command
 
+    /// <summary>
+    /// 解析输入文本中的 Protobuf 数据
+    /// </summary>
     [RelayCommand]
     private Task OnParseAsync()
     {
@@ -85,6 +94,9 @@ public partial class MainWindowViewModel : ViewModelBase
         });
     }
 
+    /// <summary>
+    /// 清空输入内容与解析结果
+    /// </summary>
     [RelayCommand]
     private void OnClear()
     {
@@ -93,6 +105,9 @@ public partial class MainWindowViewModel : ViewModelBase
         _allNodes.Clear();
     }
 
+    /// <summary>
+    /// 填充示例十六进制字符串以便演示
+    /// </summary>
     [RelayCommand]
     private void OnExample()
     {
@@ -106,63 +121,53 @@ public partial class MainWindowViewModel : ViewModelBase
         InputText = string.Join(Environment.NewLine, chunks);
     }
 
+    /// <summary>
+    /// 展开树中的全部根节点及其子节点
+    /// </summary>
     [RelayCommand]
     private void OnExpandAll()
     {
-        var items = Source?.Items.ToList();
-        if (items == null) return;
-
-        var pathBuffer = new List<int>();
-        for (var i = 0; i < items.Count; i++)
-        {
-            pathBuffer.Add(i);
-            ExpandNodeRecursive(items[i], pathBuffer);
-            pathBuffer.RemoveAt(pathBuffer.Count - 1);
-        }
+        if (_rootNodes.Count == 0) return;
+        UpdateExpansionState(_rootNodes, true);
+        RefreshTreeView();
     }
 
-    private void ExpandNodeRecursive(ProtoDisplayNode node, List<int> path)
-    {
-        if (!node.Children.Any()) return;
-        Source?.Expand(new IndexPath(path));
-        for (var i = 0; i < node.Children.Count; i++)
-        {
-            path.Add(i);
-            ExpandNodeRecursive(node.Children[i], path);
-            path.RemoveAt(path.Count - 1);
-        }
-    }
-
+    /// <summary>
+    /// 收起树中的全部节点
+    /// </summary>
     [RelayCommand]
     private void OnCollapseAll()
     {
-        var items = Source?.Items.ToList();
-        if (items == null) return;
+        if (_rootNodes.Count == 0) return;
+        UpdateExpansionState(_rootNodes, false);
+        RefreshTreeView();
+    }
 
-        var pathBuffer = new List<int>();
-        for (var i = 0; i < items.Count; i++)
+    /// <summary>
+    /// 递归设置节点的展开状态
+    /// </summary>
+    private static void UpdateExpansionState(IEnumerable<ProtoDisplayNode> nodes, bool isExpanded)
+    {
+        foreach (var node in nodes)
         {
-            pathBuffer.Add(i);
-            // 先递归收缩子节点
-            CollapseNodeRecursive(items[i], pathBuffer);
-            // 再收缩当前节点
-            Source?.Collapse(new IndexPath(pathBuffer));
-            pathBuffer.RemoveAt(pathBuffer.Count - 1);
+            node.IsExpanded = isExpanded;
+            if (node.Children.Count > 0)
+            {
+                UpdateExpansionState(node.Children, isExpanded);
+            }
         }
     }
 
-    private void CollapseNodeRecursive(ProtoDisplayNode node, List<int> path)
+    /// <summary>
+    /// 通过重建根集合来触发 TreeDataGrid 刷新
+    /// </summary>
+    private void RefreshTreeView()
     {
-        if (!node.Children.Any()) return;
-        
-        for (var i = 0; i < node.Children.Count; i++)
+        var snapshot = _rootNodes.ToList();
+        _rootNodes.Clear();
+        foreach (var node in snapshot)
         {
-            path.Add(i);
-            // 递归收缩孙节点
-            CollapseNodeRecursive(node.Children[i], path);
-            // 收缩子节点
-            Source?.Collapse(new IndexPath(path));
-            path.RemoveAt(path.Count - 1);
+            _rootNodes.Add(node);
         }
     }
 
@@ -206,6 +211,9 @@ public partial class MainWindowViewModel : ViewModelBase
         await ImportFileAsync(file);
     }
 
+    /// <summary>
+    /// 导入选中文件并触发后台解析
+    /// </summary>
     public async Task ImportFileAsync(IStorageFile file)
     {
         _ = Task.Run(() =>
@@ -231,6 +239,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     #endregion
 
+    /// <summary>
+    /// 将解析后的节点绑定到界面并更新状态
+    /// </summary>
     private async Task ParseDataAsync(byte[] data, bool updateInputText)
     {
         IsBusy = true;
@@ -260,6 +271,9 @@ public partial class MainWindowViewModel : ViewModelBase
         IsBusy = false;
     }
 
+    /// <summary>
+    /// 将字节数组格式化为带换行的十六进制字符串
+    /// </summary>
     private static string FormatHex(byte[] data)
     {
         if (data.Length == 0) return string.Empty;
@@ -297,6 +311,9 @@ public partial class MainWindowViewModel : ViewModelBase
         return sb.ToString();
     }
 
+    /// <summary>
+    /// 统一处理解析失败时的状态与提示
+    /// </summary>
     private async Task HandleParseErrorAsync(Exception ex)
     {
         StatusText = $"解析失败: {ex.Message}";
@@ -311,6 +328,9 @@ public partial class MainWindowViewModel : ViewModelBase
         IsBusy = false;
     }
 
+    /// <summary>
+    /// 根据关键字过滤节点并显示结果
+    /// </summary>
     private async Task PerformSearchAsync(string? text)
     {
         if (_allNodes.Count == 0) return;
@@ -342,6 +362,9 @@ public partial class MainWindowViewModel : ViewModelBase
         (Source?.Selection as ITreeDataGridRowSelectionModel<ProtoDisplayNode>)?.Clear();
     }
 
+    /// <summary>
+    /// 统计树中所有高亮节点的数量
+    /// </summary>
     private int CountTotalMatches(IEnumerable<ProtoDisplayNode> nodes)
     {
         var count = 0;
@@ -353,6 +376,9 @@ public partial class MainWindowViewModel : ViewModelBase
         return count;
     }
 
+    /// <summary>
+    /// 递归过滤节点集合，保留匹配项
+    /// </summary>
     private List<ProtoDisplayNode> FilterNodes(IEnumerable<ProtoDisplayNode> nodes, SearchContext context)
     {
         return (from node in nodes
@@ -362,6 +388,9 @@ public partial class MainWindowViewModel : ViewModelBase
             select node with { Children = filteredChildren, IsHighlighted = matches }).ToList();
     }
 
+    /// <summary>
+    /// 检查当前节点的显示文本或原始值是否匹配搜索条件
+    /// </summary>
     private bool NodeMatches(ProtoDisplayNode node, SearchContext context)
     {
         if (node.Label.Contains(context.Text, StringComparison.OrdinalIgnoreCase) ||
@@ -377,6 +406,9 @@ public partial class MainWindowViewModel : ViewModelBase
         return RawValueMatches(node.Node.RawValue.Span, context);
     }
 
+    /// <summary>
+    /// 在节点原始字节数据中匹配关键字
+    /// </summary>
     private bool RawValueMatches(ReadOnlySpan<byte> rawValue, SearchContext context)
     {
         if (rawValue.IsEmpty || context.SearchRunes.Length == 0)
@@ -388,6 +420,9 @@ public partial class MainWindowViewModel : ViewModelBase
         return context.CanUseAsciiFallback && ContainsPrintableAscii(rawValue, context.SearchRunes);
     }
 
+    /// <summary>
+    /// 仅保留可打印 ASCII 后进行匹配，提升兼容性
+    /// </summary>
     private static bool ContainsPrintableAscii(ReadOnlySpan<byte> data, ReadOnlySpan<Rune> searchRunes)
     {
         if (data.IsEmpty)
@@ -414,6 +449,9 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// 判断 UTF-8 序列是否包含指定 Rune 序列（忽略大小写）
+    /// </summary>
     private static bool Utf8ContainsOrdinalIgnoreCase(ReadOnlySpan<byte> source, ReadOnlySpan<Rune> searchRunes)
     {
         if (searchRunes.IsEmpty)
@@ -437,6 +475,9 @@ public partial class MainWindowViewModel : ViewModelBase
         return false;
     }
 
+    /// <summary>
+    /// 判断字节序列开头是否与目标 Rune 序列一致
+    /// </summary>
     private static bool StartsWithRunes(ReadOnlySpan<byte> source, ReadOnlySpan<Rune> expectedRunes)
     {
         var offset = 0;
@@ -454,6 +495,9 @@ public partial class MainWindowViewModel : ViewModelBase
         return true;
     }
 
+    /// <summary>
+    /// 从 UTF-8 字节序列尝试解码一个 Rune
+    /// </summary>
     private static bool TryDecodeRune(ReadOnlySpan<byte> source, out Rune rune, out int consumed)
     {
         var status = Rune.DecodeFromUtf8(source, out rune, out consumed);
@@ -465,10 +509,16 @@ public partial class MainWindowViewModel : ViewModelBase
         return false;
     }
 
+    /// <summary>
+    /// 判断字节是否为可打印 ASCII 字符
+    /// </summary>
     private static bool IsPrintableAscii(byte value) => value is >= 32 and <= 126;
 
     private readonly record struct SearchContext(string Text, Rune[] SearchRunes, bool CanUseAsciiFallback)
     {
+        /// <summary>
+        /// 根据原始搜索文本生成用于匹配的上下文
+        /// </summary>
         public static SearchContext Create(string text)
         {
             var runes = text.EnumerateRunes()
@@ -479,6 +529,9 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// 创建树形网格数据源并配置列及选择逻辑
+    /// </summary>
     private HierarchicalTreeDataGridSource<ProtoDisplayNode> CreateSource(IEnumerable<ProtoDisplayNode> items)
     {
         var cellTemplate =
@@ -500,7 +553,8 @@ public partial class MainWindowViewModel : ViewModelBase
                             CompareDescending = (a, b) => string.Compare(b.FieldDisplay, a.FieldDisplay)
                         }),
                     x => x.Children,
-                    x => x.Children.Any()),
+                    x => x.Children.Any(),
+                    x => x.IsExpanded),
             }
         };
 

@@ -246,8 +246,8 @@
             <!-- 展开/折叠箭头样式 -->
             <ControlTheme x:Key="TreeDataGridExpandCollapseChevron" TargetType="ToggleButton">
                 <Setter Property="Margin" Value="0" />
-                <Setter Property="Width" Value="20" />
-                <Setter Property="Height" Value="20" />
+                <Setter Property="Width" Value="18" />
+                <Setter Property="Height" Value="18" />
                 <Setter Property="Template">
                     <ControlTemplate>
                         <Border Background="{DynamicResource ExpanderBackground}"
@@ -258,7 +258,7 @@
                                 Height="{TemplateBinding Height}"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center">
-                            <Viewbox Width="13" Height="13"
+                            <Viewbox Width="12" Height="12"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center">
                                 <Path x:Name="ChevronPath"
@@ -296,7 +296,7 @@
                                         Classes.parent="{Binding Children.Count, Converter={StaticResource HasChildrenConverter}}"
                                         BorderThickness="{Binding Converter={StaticResource ParentNodeBorderThicknessConverter}}"
                                         CornerRadius="6"
-                                        MinHeight="47"
+                                        MinHeight="35"
                                         Margin="10,2" />
 
                                 <!-- 悬停/选中/高亮 叠加层 -->
@@ -305,7 +305,7 @@
                                         x:DataType="core:ProtoDisplayNode"
                                         Classes.highlighted="{Binding IsHighlighted}"
                                         CornerRadius="6"
-                                        MinHeight="47"
+                                        MinHeight="35"
                                         Margin="10,2"
                                         BorderThickness="1"
                                         Opacity="0"

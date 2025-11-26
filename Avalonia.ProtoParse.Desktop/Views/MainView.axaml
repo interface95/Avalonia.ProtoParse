@@ -23,7 +23,7 @@
         <Grid Grid.IsSharedSizeScope="True">
             <Grid.ColumnDefinitions>
                 <!-- 左侧列：原始数据输入 -->
-                <ColumnDefinition Width="280" MinWidth="200" />
+                <ColumnDefinition Width="280" MinWidth="280" />
                 <!-- 分割线 -->
                 <ColumnDefinition Width="1" />
                 <!-- 中间列：结构树 -->

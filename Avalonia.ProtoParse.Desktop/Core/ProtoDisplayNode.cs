@@ -24,6 +24,7 @@ public sealed record ProtoDisplayNode(
     public string WireTypeDisplay => WireType.ToString();
     public bool IsArrayGroup => Node is null && Children.Count > 0;
     public string? Utf8Preview => GetTextPreview();
+    public bool IsExpanded { get; set; }
 
     public ProtoDisplayNode(ProtoNode node, string path)
         : this(CreateLabel(node), node, path,
@@ -294,4 +295,3 @@ public sealed record ProtoDisplayNode(
 
     }
 }
-
