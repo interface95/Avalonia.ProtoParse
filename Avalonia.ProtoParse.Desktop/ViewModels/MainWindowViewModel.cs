@@ -225,9 +225,9 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <summary>
     /// 导入选中文件并触发后台解析
     /// </summary>
-    public async Task ImportFileAsync(IStorageFile file)
+    public Task ImportFileAsync(IStorageFile file)
     {
-        _ = Task.Run(() =>
+        return Task.Run(() =>
         {
             return RunCommandAsync(() => IsBusy, async () =>
             {
@@ -246,6 +246,64 @@ public partial class MainWindowViewModel : ViewModelBase
                 await ParseDataAsync(data, updateInputText: true);
             }, async error => { await NotificationManager.ShowErrorAsync($"导入失败: {error.Message}"); });
         });
+    }
+
+    /// <summary>
+    /// 导出节点数据
+    /// </summary>
+    [RelayCommand]
+    private async Task OnExportNodeAsync(ProtoDisplayNode? node)
+    {
+        node ??= SelectedNode;
+        if (node is null || Provider is null) return;
+
+        var fileName = $"node_{node.FieldNumber}_{node.WireType}";
+
+        var file = await Provider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "导出节点数据",
+            SuggestedFileName = fileName,
+            FileTypeChoices =
+            [
+                new FilePickerFileType("原始二进制") { Patterns = ["*.bin"] },
+                new FilePickerFileType("JSON 结构") { Patterns = ["*.json"] },
+                new FilePickerFileType("Hex 文本") { Patterns = ["*.txt"] }
+            ]
+        });
+
+        if (file is null) return;
+
+        try
+        {
+            await using var stream = await file.OpenWriteAsync();
+            await using var writer = new StreamWriter(stream);
+
+            if (file.Name.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(node.ToJsonObject(), ProtoJsonContext.Default.ProtoNodeDto);
+                await writer.WriteAsync(json);
+            }
+            else if (file.Name.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+            {
+                var hex = node.Node is { RawValue.IsEmpty: false }
+                    ? Convert.ToHexString(node.Node.RawValue.Span)
+                    : string.Empty;
+                await writer.WriteAsync(hex);
+            }
+            else // .bin
+            {
+                if (node.Node is { RawValue.IsEmpty: false })
+                {
+                    await stream.WriteAsync(node.Node.RawValue);
+                }
+            }
+
+            await NotificationManager.ShowSuccessAsync("导出成功");
+        }
+        catch (Exception ex)
+        {
+            await NotificationManager.ShowErrorAsync($"导出失败: {ex.Message}");
+        }
     }
 
     #endregion

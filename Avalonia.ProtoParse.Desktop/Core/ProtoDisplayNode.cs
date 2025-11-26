@@ -329,4 +329,16 @@ public sealed record ProtoDisplayNode(
         return true;
 
     }
+
+    public ProtoNodeDto ToJsonObject()
+    {
+        return new ProtoNodeDto(
+            FieldNumber,
+            WireType.ToString(),
+            Path,
+            Summary,
+            (Node != null && !Node.RawValue.IsEmpty) ? Convert.ToHexString(Node.RawValue.Span) : null,
+            Children.Select(c => c.ToJsonObject()).ToList()
+        );
+    }
 }

@@ -227,6 +227,16 @@
 
             <!-- TreeDataGridRow 样式 -->
             <ControlTheme x:Key="{x:Type TreeDataGridRow}" TargetType="TreeDataGridRow">
+                <!-- Bind the ViewModel to the Row's Tag so the ContextMenu can access it -->
+                <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=TreeDataGrid}}" />
+                <Setter Property="ContextMenu">
+                    <ContextMenu>
+                        <MenuItem Header="导出节点..." 
+                                  Command="{Binding $parent[ContextMenu].PlacementTarget.Tag.ExportNodeCommand}"
+                                  CommandParameter="{Binding}"
+                                  x:CompileBindings="False" />
+                    </ContextMenu>
+                </Setter>
                 <Setter Property="Template">
                     <ControlTemplate>
                         <Border x:Name="RowBorder"

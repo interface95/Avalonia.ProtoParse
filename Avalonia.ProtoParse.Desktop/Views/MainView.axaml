@@ -117,7 +117,7 @@
                             <Button Content="全部收缩" Command="{Binding CollapseAllCommand}" CornerRadius="4"
                                     Padding="15,6"
                                     FontSize="12" />
-                            <Button Content="导出节点" CornerRadius="4" Padding="15,6" FontSize="12" />
+                            <Button Content="导出节点" Command="{Binding ExportNodeCommand}" CornerRadius="4" Padding="15,6" FontSize="12" />
                         </StackPanel>
 
                         <!-- 搜索框 -->
