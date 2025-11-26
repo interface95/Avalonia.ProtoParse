@@ -25,6 +25,41 @@ public sealed record ProtoDisplayNode(
     public bool IsArrayGroup => Node is null && Children.Count > 0;
     public string? Utf8Preview => GetTextPreview();
     public bool IsExpanded { get; set; }
+    public bool HasChildren => Children.Count > 0;
+
+    // Helper properties for styling
+    public bool IsVarint => WireType == ProtoWireType.Varint;
+    public bool IsLengthDelimited => WireType == ProtoWireType.LengthDelimited;
+    public bool IsFixed32 => WireType == ProtoWireType.Fixed32;
+    public bool IsFixed64 => WireType == ProtoWireType.Fixed64;
+
+    // Reference Color Logic
+    public Avalonia.Media.Color BadgeColor => WireType switch
+    {
+        ProtoWireType.Varint => Avalonia.Media.Color.Parse("#F59E0B"), // Orange
+        ProtoWireType.LengthDelimited => Avalonia.Media.Color.Parse("#3B82F6"), // Blue
+        ProtoWireType.Fixed64 => Avalonia.Media.Color.Parse("#059669"), // Emerald
+        ProtoWireType.Fixed32 => Avalonia.Media.Color.Parse("#059669"), // Emerald
+        _ => Avalonia.Media.Color.Parse("#6B7280") // Gray
+    };
+
+    public Avalonia.Media.IBrush BadgeBrush => new Avalonia.Media.SolidColorBrush(BadgeColor);
+    
+    // Opacity 0.15 for Badge Background
+    public Avalonia.Media.IBrush BadgeBackgroundBrush => new Avalonia.Media.SolidColorBrush(BadgeColor, 0.15);
+
+    // Opacity 0.04 for Card Background (only if HasChildren)
+    public Avalonia.Media.IBrush CardBackgroundBrush => HasChildren 
+        ? new Avalonia.Media.SolidColorBrush(BadgeColor, 0.04) 
+        : Avalonia.Media.Brushes.Transparent;
+
+    // Opacity 0.3 for Card Border (only if HasChildren, otherwise transparent but keeps thickness)
+    public Avalonia.Media.IBrush CardBorderBrush => HasChildren 
+        ? new Avalonia.Media.SolidColorBrush(BadgeColor, 0.3) 
+        : Avalonia.Media.Brushes.Transparent;
+
+    // Always 1px to prevent layout shift when selected (which uses 1px)
+    public Avalonia.Thickness CardBorderThickness => new Avalonia.Thickness(1);
 
     public ProtoDisplayNode(ProtoNode node, string path)
         : this(CreateLabel(node), node, path,

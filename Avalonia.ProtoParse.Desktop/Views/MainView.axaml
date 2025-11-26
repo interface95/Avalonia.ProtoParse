@@ -139,6 +139,7 @@
 
                 <!-- 树形数据表格 -->
                 <TreeDataGrid Grid.Row="1" Source="{Binding Source}"
+                              Classes="ProtoTheme"
                               ShowColumnHeaders="False"
                               Margin="0,10,0,0" />
             </Grid>

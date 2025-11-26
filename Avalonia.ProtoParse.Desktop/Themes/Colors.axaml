@@ -45,14 +45,37 @@
             <SolidColorBrush x:Key="ExpanderForeground" Color="#2F4F4F" />
             
             <!-- WireType Colors -->
-            <SolidColorBrush x:Key="WireTypeVarintBrush" Color="#D2691E" /> <!-- Chocolate -->
-            <SolidColorBrush x:Key="WireTypeFixedBrush" Color="#008080" /> <!-- Teal -->
-            <SolidColorBrush x:Key="WireTypeLengthDelimitedBrush" Color="#000000" /> <!-- Black (Original) -->
-            <SolidColorBrush x:Key="WireTypeDefaultBrush" Color="Gray" />
+            <SolidColorBrush x:Key="WireTypeVarintBrush" Color="#F59E0B" />
+            <SolidColorBrush x:Key="WireTypeVarintBackground" Color="#FEF3C7" />
+            <SolidColorBrush x:Key="WireTypeVarintBorder" Color="#FCD34D" />
+
+            <SolidColorBrush x:Key="WireTypeLengthDelimitedBrush" Color="#3B82F6" />
+            <SolidColorBrush x:Key="WireTypeLengthDelimitedBackground" Color="#DBEAFE" />
+            <SolidColorBrush x:Key="WireTypeLengthDelimitedBorder" Color="#93C5FD" />
+
+            <SolidColorBrush x:Key="WireTypeFixedBrush" Color="#10B981" />
+            <SolidColorBrush x:Key="WireTypeFixedBackground" Color="#D1FAE5" />
+            <SolidColorBrush x:Key="WireTypeFixedBorder" Color="#6EE7B7" />
+
+            <SolidColorBrush x:Key="WireTypeDefaultBrush" Color="#6B7280" />
+            <SolidColorBrush x:Key="WireTypeDefaultBackground" Color="#F3F4F6" />
+            <SolidColorBrush x:Key="WireTypeDefaultBorder" Color="#E5E7EB" />
             
             <!-- Parent Node Styles -->
             <SolidColorBrush x:Key="ParentNodeBackground" Color="#F8FAFF" />
             <SolidColorBrush x:Key="ParentNodeBorder" Color="#DCE0FE" />
+            
+            <!-- ProtoTheme Colors -->
+            <SolidColorBrush x:Key="ProtoExpanderBorder" Color="#E5E7EB" />
+            <SolidColorBrush x:Key="ProtoExpanderBackground" Color="#F3F4F6" />
+            <SolidColorBrush x:Key="ProtoExpanderStroke" Color="#6B7280" />
+            <SolidColorBrush x:Key="ProtoExpanderStrokeChecked" Color="#4B5563" />
+            <SolidColorBrush x:Key="ProtoExpanderBackgroundHover" Color="#E5E7EB" />
+            <SolidColorBrush x:Key="ProtoExpanderBorderHover" Color="#D1D5DB" />
+            
+            <SolidColorBrush x:Key="ProtoCardSelectedBackground" Color="#DBE0FD" />
+            <SolidColorBrush x:Key="ProtoCardSelectedBorder" Color="#DBE0FD" />
+            <SolidColorBrush x:Key="ProtoCardHoverBackground" Color="#CCDBE0FD" />
         </ResourceDictionary>
         
         <ResourceDictionary x:Key="Dark">
@@ -99,14 +122,37 @@
             <SolidColorBrush x:Key="ExpanderForeground" Color="#E0E0E0" />
             
             <!-- WireType Colors -->
-            <SolidColorBrush x:Key="WireTypeVarintBrush" Color="#FFA500" /> <!-- Orange -->
-            <SolidColorBrush x:Key="WireTypeFixedBrush" Color="#20B2AA" /> <!-- LightSeaGreen -->
-            <SolidColorBrush x:Key="WireTypeLengthDelimitedBrush" Color="#E0E0E0" /> <!-- Matches TextPrimary -->
-            <SolidColorBrush x:Key="WireTypeDefaultBrush" Color="#808080" />
+            <SolidColorBrush x:Key="WireTypeVarintBrush" Color="#FBBF24" />
+            <SolidColorBrush x:Key="WireTypeVarintBackground" Color="#451A03" />
+            <SolidColorBrush x:Key="WireTypeVarintBorder" Color="#78350F" />
+
+            <SolidColorBrush x:Key="WireTypeLengthDelimitedBrush" Color="#60A5FA" />
+            <SolidColorBrush x:Key="WireTypeLengthDelimitedBackground" Color="#172554" />
+            <SolidColorBrush x:Key="WireTypeLengthDelimitedBorder" Color="#1E3A8A" />
+
+            <SolidColorBrush x:Key="WireTypeFixedBrush" Color="#34D399" />
+            <SolidColorBrush x:Key="WireTypeFixedBackground" Color="#064E3B" />
+            <SolidColorBrush x:Key="WireTypeFixedBorder" Color="#065F46" />
+
+            <SolidColorBrush x:Key="WireTypeDefaultBrush" Color="#9CA3AF" />
+            <SolidColorBrush x:Key="WireTypeDefaultBackground" Color="#374151" />
+            <SolidColorBrush x:Key="WireTypeDefaultBorder" Color="#4B5563" />
             
             <!-- Parent Node Styles -->
             <SolidColorBrush x:Key="ParentNodeBackground" Color="#2D2D30" />
             <SolidColorBrush x:Key="ParentNodeBorder" Color="#3E3E42" />
+            
+            <!-- ProtoTheme Colors -->
+            <SolidColorBrush x:Key="ProtoExpanderBorder" Color="#454545" />
+            <SolidColorBrush x:Key="ProtoExpanderBackground" Color="#2D2D30" />
+            <SolidColorBrush x:Key="ProtoExpanderStroke" Color="#A0A0A0" />
+            <SolidColorBrush x:Key="ProtoExpanderStrokeChecked" Color="#E0E0E0" />
+            <SolidColorBrush x:Key="ProtoExpanderBackgroundHover" Color="#3E3E42" />
+            <SolidColorBrush x:Key="ProtoExpanderBorderHover" Color="#555555" />
+            
+            <SolidColorBrush x:Key="ProtoCardSelectedBackground" Color="#264F78" />
+            <SolidColorBrush x:Key="ProtoCardSelectedBorder" Color="#264F78" />
+            <SolidColorBrush x:Key="ProtoCardHoverBackground" Color="#2A2D2E" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>

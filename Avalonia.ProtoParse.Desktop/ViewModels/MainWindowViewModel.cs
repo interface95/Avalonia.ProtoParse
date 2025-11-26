@@ -69,6 +69,14 @@ public partial class MainWindowViewModel : ViewModelBase
         Source = CreateSource(_rootNodes);
     }
 
+    public Action<ProtoDisplayNode>? ToggleNodeAction { get; set; }
+
+    [RelayCommand]
+    private void ToggleNode(ProtoDisplayNode node)
+    {
+        ToggleNodeAction?.Invoke(node);
+    }
+
     #region command
 
     /// <summary>
