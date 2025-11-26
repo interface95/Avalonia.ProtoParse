@@ -150,9 +150,10 @@
             <SolidColorBrush x:Key="ProtoExpanderBackgroundHover" Color="#3E3E42" />
             <SolidColorBrush x:Key="ProtoExpanderBorderHover" Color="#555555" />
             
-            <SolidColorBrush x:Key="ProtoCardSelectedBackground" Color="#264F78" />
-            <SolidColorBrush x:Key="ProtoCardSelectedBorder" Color="#264F78" />
-            <SolidColorBrush x:Key="ProtoCardHoverBackground" Color="#2A2D2E" />
+            <SolidColorBrush x:Key="ProtoCardSelectedBackground" Color="#2B3245" />
+            <SolidColorBrush x:Key="ProtoCardSelectedBorder" Color="#4B5563" />
+            <SolidColorBrush x:Key="ProtoCardHoverBackground" Color="#323844" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>
+
