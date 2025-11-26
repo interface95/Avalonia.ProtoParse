@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <ApplicationIcon>Assets\Goescat-Macaron-Gimp.ico</ApplicationIcon>
         <!-- AOT Configuration -->
         <PublishAot>true</PublishAot>
         <StripSymbols>true</StripSymbols>

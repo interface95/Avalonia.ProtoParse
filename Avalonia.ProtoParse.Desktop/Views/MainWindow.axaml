@@ -10,7 +10,7 @@
               MinWidth="1110" MinHeight="380"
               x:Class="Avalonia.ProtoParse.Desktop.Views.MainWindow"
               x:DataType="vm:MainWindowViewModel"
-              Icon="/Assets/avalonia-logo.ico"
+              Icon="/Assets/Goescat-Macaron-Gimp.ico"
               Title="Avalonia.ProtoParse.Desktop">
 
     <u:UrsaWindow.RightContent>
