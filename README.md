@@ -53,3 +53,4 @@ A modern, cross-platform Protocol Buffers (Protobuf) binary data parser and visu
 2.  使用 IDE (Visual Studio, Rider, VS Code) 打开 `Avalonia.ProtoParse.sln`。
 3.  编译并运行 `Avalonia.ProtoParse.Desktop` 项目。
 4.  在左侧输入框粘贴您的 Hex 或 Base64 字符串，点击 **解析** 按钮（或点击 **示例** 查看效果）。
+5.  可以直接把文件拖入解析
