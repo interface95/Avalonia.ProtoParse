@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -26,6 +27,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private readonly ObservableCollection<ProtoDisplayNode> _rootNodes = [];
     private List<ProtoDisplayNode> _allNodes = [];
+    private static readonly ConditionalWeakTable<ProtoNode, byte[]> PrintableAsciiCache = new();
 
     #region 属性
 
@@ -345,14 +347,13 @@ public partial class MainWindowViewModel : ViewModelBase
 
         var searchText = text.Trim();
         var context = SearchContext.Create(searchText);
-        var filtered = FilterNodes(_allNodes, context);
+        var filtered = FilterNodes(_allNodes, context, expandMatchedPaths: true);
         foreach (var node in filtered)
             _rootNodes.Add(node);
 
         var matchCount = CountTotalMatches(filtered);
         if (matchCount > 0)
         {
-            OnExpandAll();
             await NotificationManager.ShowInfoAsync($"搜索完成，找到 {matchCount} 个匹配项");
         }
         else
@@ -380,13 +381,22 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <summary>
     /// 递归过滤节点集合，保留匹配项
     /// </summary>
-    private List<ProtoDisplayNode> FilterNodes(IEnumerable<ProtoDisplayNode> nodes, SearchContext context)
+    private List<ProtoDisplayNode> FilterNodes(IEnumerable<ProtoDisplayNode> nodes, SearchContext context, bool expandMatchedPaths)
     {
-        return (from node in nodes
-            let matches = NodeMatches(node, context)
-            let filteredChildren = FilterNodes(node.Children, context)
-            where matches || filteredChildren.Count > 0
-            select node with { Children = filteredChildren, IsHighlighted = matches }).ToList();
+        var result = new List<ProtoDisplayNode>();
+        foreach (var node in nodes)
+        {
+            var matches = NodeMatches(node, context);
+            var filteredChildren = FilterNodes(node.Children, context, expandMatchedPaths);
+            if (matches || filteredChildren.Count > 0)
+            {
+                var copy = node with { Children = filteredChildren, IsHighlighted = matches };
+                copy.IsExpanded = expandMatchedPaths && filteredChildren.Count > 0;
+                result.Add(copy);
+            }
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -404,37 +414,43 @@ public partial class MainWindowViewModel : ViewModelBase
         if (node.Children.Count > 0 || node.Node == null || node.Node.RawValue.IsEmpty)
             return false;
 
-        return RawValueMatches(node.Node.RawValue.Span, context);
+        return RawValueMatches(node.Node, context);
     }
 
     /// <summary>
     /// 在节点原始字节数据中匹配关键字
     /// </summary>
-    private bool RawValueMatches(ReadOnlySpan<byte> rawValue, SearchContext context)
+    private bool RawValueMatches(ProtoNode protoNode, SearchContext context)
     {
+        var rawValue = protoNode.RawValue.Span;
         if (rawValue.IsEmpty || context.SearchRunes.Length == 0)
             return false;
 
         if (Utf8ContainsOrdinalIgnoreCase(rawValue, context.SearchRunes))
             return true;
 
-        return context.CanUseAsciiFallback && ContainsPrintableAscii(rawValue, context.SearchRunes);
+        if (!context.CanUseAsciiFallback)
+            return false;
+
+        var ascii = GetPrintableAscii(protoNode);
+        return !ascii.IsEmpty && Utf8ContainsOrdinalIgnoreCase(ascii, context.SearchRunes);
     }
 
     /// <summary>
-    /// 仅保留可打印 ASCII 后进行匹配，提升兼容性
+    /// 获取节点中可打印 ASCII 的缓存切片
     /// </summary>
-    private static bool ContainsPrintableAscii(ReadOnlySpan<byte> data, ReadOnlySpan<Rune> searchRunes)
+    private static ReadOnlySpan<byte> GetPrintableAscii(ProtoNode node)
     {
-        if (data.IsEmpty)
-            return false;
-
-        var pool = ArrayPool<byte>.Shared;
-        var rented = pool.Rent(data.Length);
-        try
+        var cached = PrintableAsciiCache.GetValue(node, static n =>
         {
+            var span = n.RawValue.Span;
+            if (span.IsEmpty)
+                return Array.Empty<byte>();
+
+            var pool = ArrayPool<byte>.Shared;
+            var rented = pool.Rent(span.Length);
             var count = 0;
-            foreach (var b in data)
+            foreach (var b in span)
             {
                 if (IsPrintableAscii(b))
                 {
@@ -442,12 +458,22 @@ public partial class MainWindowViewModel : ViewModelBase
                 }
             }
 
-            return count != 0 && Utf8ContainsOrdinalIgnoreCase(rented.AsSpan(0, count), searchRunes);
-        }
-        finally
-        {
+            byte[] result;
+            if (count == 0)
+            {
+                result = Array.Empty<byte>();
+            }
+            else
+            {
+                result = new byte[count];
+                Buffer.BlockCopy(rented, 0, result, 0, count);
+            }
+
             pool.Return(rented);
-        }
+            return result;
+        });
+
+        return cached.AsSpan();
     }
 
     /// <summary>
