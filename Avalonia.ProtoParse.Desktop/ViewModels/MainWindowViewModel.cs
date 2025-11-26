@@ -454,12 +454,12 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             var matches = NodeMatches(node, context);
             var filteredChildren = FilterNodes(node.Children, context, expandMatchedPaths);
-            if (matches || filteredChildren.Count > 0)
-            {
-                var copy = node with { Children = filteredChildren, IsHighlighted = matches };
-                copy.IsExpanded = expandMatchedPaths && filteredChildren.Count > 0;
-                result.Add(copy);
-            }
+            if (!matches && filteredChildren.Count <= 0)
+                continue;
+            
+            var copy = node with { Children = filteredChildren, IsHighlighted = matches };
+            copy.IsExpanded = expandMatchedPaths && filteredChildren.Count > 0;
+            result.Add(copy);
         }
 
         return result;
@@ -511,7 +511,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             var span = n.RawValue.Span;
             if (span.IsEmpty)
-                return Array.Empty<byte>();
+                return [];
 
             var pool = ArrayPool<byte>.Shared;
             var rented = pool.Rent(span.Length);
@@ -628,7 +628,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private HierarchicalTreeDataGridSource<ProtoDisplayNode> CreateSource(IEnumerable<ProtoDisplayNode> items)
     {
         var cellTemplate =
-            (Avalonia.Controls.Templates.IDataTemplate)Application.Current!.FindResource("ProtoNodeTemplate")!;
+            (Controls.Templates.IDataTemplate)Application.Current!.FindResource("ProtoNodeTemplate")!;
 
         var source = new HierarchicalTreeDataGridSource<ProtoDisplayNode>(items)
         {
