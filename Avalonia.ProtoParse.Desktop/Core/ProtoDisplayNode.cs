@@ -44,18 +44,18 @@ public sealed record ProtoDisplayNode(
     };
 
     public Avalonia.Media.IBrush BadgeBrush => new Avalonia.Media.SolidColorBrush(BadgeColor);
-    
+
     // Opacity 0.15 for Badge Background
     public Avalonia.Media.IBrush BadgeBackgroundBrush => new Avalonia.Media.SolidColorBrush(BadgeColor, 0.15);
 
     // Opacity 0.04 for Card Background (only if HasChildren)
-    public Avalonia.Media.IBrush CardBackgroundBrush => HasChildren 
-        ? new Avalonia.Media.SolidColorBrush(BadgeColor, 0.04) 
+    public Avalonia.Media.IBrush CardBackgroundBrush => HasChildren
+        ? new Avalonia.Media.SolidColorBrush(BadgeColor, 0.04)
         : Avalonia.Media.Brushes.Transparent;
 
     // Opacity 0.3 for Card Border (only if HasChildren, otherwise transparent but keeps thickness)
-    public Avalonia.Media.IBrush CardBorderBrush => HasChildren 
-        ? new Avalonia.Media.SolidColorBrush(BadgeColor, 0.3) 
+    public Avalonia.Media.IBrush CardBorderBrush => HasChildren
+        ? new Avalonia.Media.SolidColorBrush(BadgeColor, 0.3)
         : Avalonia.Media.Brushes.Transparent;
 
     // Always 1px to prevent layout shift when selected (which uses 1px)
@@ -63,13 +63,31 @@ public sealed record ProtoDisplayNode(
 
     public ProtoDisplayNode(ProtoNode node, string path)
         : this(CreateLabel(node), node, path,
-            CreateChildren(node, path),
+            CreateChildren(node, path, null, null, null),
             node.FieldNumber,
             node.WireType,
             CreateSummary(node),
             CreateRawPreview(node),
             false)
     {
+    }
+
+    public System.Windows.Input.ICommand? CopyContentCommand { get; init; }
+    public System.Windows.Input.ICommand? CopyHexCommand { get; init; }
+    public System.Windows.Input.ICommand? CopyPathCommand { get; init; }
+
+    public ProtoDisplayNode(ProtoNode node, string path, System.Windows.Input.ICommand? copyContent, System.Windows.Input.ICommand? copyHex, System.Windows.Input.ICommand? copyPath)
+        : this(CreateLabel(node), node, path,
+            CreateChildren(node, path, copyContent, copyHex, copyPath),
+            node.FieldNumber,
+            node.WireType,
+            CreateSummary(node),
+            CreateRawPreview(node),
+            false)
+    {
+        CopyContentCommand = copyContent;
+        CopyHexCommand = copyHex;
+        CopyPathCommand = copyPath;
     }
 
     private string? GetTextPreview()
@@ -80,22 +98,22 @@ public sealed record ProtoDisplayNode(
         {
             ProtoWireType.LengthDelimited => TryGetUtf8(Node.RawValue.Span),
             ProtoWireType.Varint => VarintToValue(Node.RawValue.Span).ToString(),
-            ProtoWireType.Fixed32 => Node.RawValue.Length >= 4 
-                ? BitConverter.ToUInt32(Node.RawValue.Span).ToString() 
+            ProtoWireType.Fixed32 => Node.RawValue.Length >= 4
+                ? BitConverter.ToUInt32(Node.RawValue.Span).ToString()
                 : null,
-            ProtoWireType.Fixed64 => Node.RawValue.Length >= 8 
-                ? BitConverter.ToUInt64(Node.RawValue.Span).ToString() 
+            ProtoWireType.Fixed64 => Node.RawValue.Length >= 8
+                ? BitConverter.ToUInt64(Node.RawValue.Span).ToString()
                 : null,
             _ => null
         };
     }
 
-    public static IReadOnlyList<ProtoDisplayNode> FromNodes(IReadOnlyList<ProtoNode> nodes)
-        => BuildDisplayNodes(nodes, string.Empty);
+    public static IReadOnlyList<ProtoDisplayNode> FromNodes(IReadOnlyList<ProtoNode> nodes, System.Windows.Input.ICommand? copyContent = null, System.Windows.Input.ICommand? copyHex = null, System.Windows.Input.ICommand? copyPath = null)
+        => BuildDisplayNodes(nodes, string.Empty, copyContent, copyHex, copyPath);
 
-    private static IReadOnlyList<ProtoDisplayNode> CreateChildren(ProtoNode node, string parentPath)
+    private static IReadOnlyList<ProtoDisplayNode> CreateChildren(ProtoNode node, string parentPath, System.Windows.Input.ICommand? copyContent, System.Windows.Input.ICommand? copyHex, System.Windows.Input.ICommand? copyPath)
         => node.Children is { Count: > 0 }
-            ? BuildDisplayNodes(node.Children, parentPath)
+            ? BuildDisplayNodes(node.Children, parentPath, copyContent, copyHex, copyPath)
             : Array.Empty<ProtoDisplayNode>();
 
     public static ProtoDisplayNode CreateError(string message)
@@ -237,7 +255,7 @@ public sealed record ProtoDisplayNode(
         }
     }
 
-    private static IReadOnlyList<ProtoDisplayNode> BuildDisplayNodes(IReadOnlyList<ProtoNode> nodes, string parentPath)
+    private static IReadOnlyList<ProtoDisplayNode> BuildDisplayNodes(IReadOnlyList<ProtoNode> nodes, string parentPath, System.Windows.Input.ICommand? copyContent, System.Windows.Input.ICommand? copyHex, System.Windows.Input.ICommand? copyPath)
     {
         if (nodes.Count == 0)
         {
@@ -268,7 +286,7 @@ public sealed record ProtoDisplayNode(
 
             if (items.Count == 1)
             {
-                result.Add(new ProtoDisplayNode(items[0], basePath));
+                result.Add(new ProtoDisplayNode(items[0], basePath, copyContent, copyHex, copyPath));
                 continue;
             }
 
@@ -280,21 +298,26 @@ public sealed record ProtoDisplayNode(
             {
                 var occurrenceSegment = $"{fieldSegment}[{index + 1}]";
                 var elementPath = ComposePath(parentPath, occurrenceSegment);
-                children.Add(new ProtoDisplayNode(items[index], elementPath));
+                children.Add(new ProtoDisplayNode(items[index], elementPath, copyContent, copyHex, copyPath));
                 totalLength += items[index].RawValue.Length;
             }
 
-            result.Add(CreateArrayGroup(fieldNumber, wireType, basePath, children, totalLength));
+            result.Add(CreateArrayGroup(fieldNumber, wireType, basePath, children, totalLength, copyContent, copyHex, copyPath));
         }
 
         return result;
     }
 
-    private static ProtoDisplayNode CreateArrayGroup(int fieldNumber, ProtoWireType wireType, string path, IReadOnlyList<ProtoDisplayNode> children, int totalLength)
+    private static ProtoDisplayNode CreateArrayGroup(int fieldNumber, ProtoWireType wireType, string path, IReadOnlyList<ProtoDisplayNode> children, int totalLength, System.Windows.Input.ICommand? copyContent, System.Windows.Input.ICommand? copyHex, System.Windows.Input.ICommand? copyPath)
     {
         var label = $"#{fieldNumber} 数组";
         var summary = $"数组 · {children.Count} 个元素 · 长度 {totalLength}";
-        return new ProtoDisplayNode(label, null, path, children, fieldNumber, wireType, summary, string.Empty, false);
+        return new ProtoDisplayNode(label, null, path, children, fieldNumber, wireType, summary, string.Empty, false)
+        {
+            CopyContentCommand = copyContent,
+            CopyHexCommand = copyHex,
+            CopyPathCommand = copyPath
+        };
     }
 
     private static string ComposePath(string parentPath, string segment)
@@ -322,9 +345,9 @@ public sealed record ProtoDisplayNode(
         if (end < 0) return false;
 
         var numberSpan = segment.AsSpan(start + 1, end - start - 1);
-        if (!int.TryParse(numberSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value)) 
+        if (!int.TryParse(numberSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
             return false;
-        
+
         index = value;
         return true;
 

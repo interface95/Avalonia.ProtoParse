@@ -9,7 +9,10 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Avalonia.ProtoParse.Desktop.Views.MainView"
              x:DataType="vm:MainWindowViewModel"
+             x:Name="Root"
              DragDrop.AllowDrop="True">
+
+
 
     <u:LoadingContainer IsLoading="{Binding IsBusy}"
                         LoadingMessage="{Binding LoadingMessage}"

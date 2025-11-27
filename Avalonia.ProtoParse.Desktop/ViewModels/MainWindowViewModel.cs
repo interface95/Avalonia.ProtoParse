@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using Avalonia.ProtoParse.Desktop.Core;
 using Avalonia.ProtoParse.Desktop.Helpers;
@@ -31,7 +32,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     #region 属性
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsNodeSelected))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNodeSelected))]
     private ProtoDisplayNode? _selectedNode;
 
     public bool IsNodeSelected => SelectedNode != null;
@@ -306,6 +308,56 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
+    private async Task CopyNodeContent(ProtoDisplayNode? node)
+    {
+        node ??= SelectedNode;
+        if (node is null) return;
+
+        // 优先复制 UTF8 预览，如果没有则复制 Hex
+        var content = node.Utf8Preview ?? node.RawPreview;
+        if (string.IsNullOrEmpty(content)) return;
+
+        await CopyToClipboardAsync(content);
+        await NotificationManager.ShowSuccessAsync("已复制节点内容");
+    }
+
+    [RelayCommand]
+    private async Task CopyNodeHex(ProtoDisplayNode? node)
+    {
+        node ??= SelectedNode;
+        if (node is null) return;
+
+        var hex = node.Node is { RawValue.IsEmpty: false }
+            ? Convert.ToHexString(node.Node.RawValue.Span)
+            : string.Empty;
+
+        if (string.IsNullOrEmpty(hex)) return;
+
+        await CopyToClipboardAsync(hex);
+        await NotificationManager.ShowSuccessAsync("已复制节点 Hex");
+    }
+
+    [RelayCommand]
+    private async Task CopyNodePath(ProtoDisplayNode? node)
+    {
+        node ??= SelectedNode;
+        if (node is null) return;
+
+        if (string.IsNullOrEmpty(node.Path)) return;
+
+        await CopyToClipboardAsync(node.Path);
+        await NotificationManager.ShowSuccessAsync("已复制节点路径");
+    }
+
+    private async Task CopyToClipboardAsync(string text)
+    {
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { Clipboard: { } clipboard } })
+        {
+            await clipboard.SetTextAsync(text);
+        }
+    }
+
     #endregion
 
     /// <summary>
@@ -318,7 +370,7 @@ public partial class MainWindowViewModel : ViewModelBase
         StatusText = "解析中...";
 
         var nodes = ProtoParser.Parse(data).ToList();
-        var displayNodes = ProtoDisplayNode.FromNodes(nodes).ToList(); // Materialize list
+        var displayNodes = ProtoDisplayNode.FromNodes(nodes, CopyNodeContentCommand, CopyNodeHexCommand, CopyNodePathCommand).ToList(); // Materialize list
 
         LoadingMessage = "加载到视图...";
         StatusText = "加载到视图...";
@@ -346,14 +398,14 @@ public partial class MainWindowViewModel : ViewModelBase
     private static string FormatHex(byte[] data)
     {
         if (data.Length == 0) return string.Empty;
-        
+
         // 限制最大显示大小，防止界面卡死 (例如限制为 5MB 数据 -> 10MB 文本)
         // 如果用户一定要看大文件，建议使用专门的 Hex 编辑器控件
         const int maxBytesToDisplay = 20 * 1024 * 1024;
-        
+
         var displayData = data;
         var isTruncated = false;
-        
+
         if (data.Length > maxBytesToDisplay)
         {
             displayData = data[..maxBytesToDisplay];
@@ -362,7 +414,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         const int bytesPerLine = 42;
         var sb = new StringBuilder(displayData.Length * 2 + (displayData.Length / bytesPerLine) * 2);
-        
+
         for (var i = 0; i < displayData.Length; i += bytesPerLine)
         {
             if (i > 0) sb.AppendLine();
@@ -370,12 +422,12 @@ public partial class MainWindowViewModel : ViewModelBase
             sb.Append(Convert.ToHexString(displayData, i, count));
         }
 
-        if (!isTruncated) 
+        if (!isTruncated)
             return sb.ToString();
-        
+
         sb.AppendLine();
         sb.AppendLine();
-        sb.Append($"// ... (数据过大，仅显示前 {maxBytesToDisplay/1024} KB，共 {data.Length/1024} KB)");
+        sb.Append($"// ... (数据过大，仅显示前 {maxBytesToDisplay / 1024} KB，共 {data.Length / 1024} KB)");
 
         return sb.ToString();
     }
@@ -456,7 +508,7 @@ public partial class MainWindowViewModel : ViewModelBase
             var filteredChildren = FilterNodes(node.Children, context, expandMatchedPaths);
             if (!matches && filteredChildren.Count <= 0)
                 continue;
-            
+
             var copy = node with { Children = filteredChildren, IsHighlighted = matches };
             copy.IsExpanded = expandMatchedPaths && filteredChildren.Count > 0;
             result.Add(copy);
